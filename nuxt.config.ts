@@ -1,28 +1,41 @@
-import { defineNuxtConfig } from 'nuxt'
-import ElementPlus from 'unplugin-element-plus/vite'
+import { defineNuxtConfig } from "nuxt/config";
+import ElementPlus from "unplugin-element-plus/vite";
 
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
-  // meta
-  meta: {
-    title: 'Element Plus + Nuxt 3',
+  ssr: false,
+
+  target: "static",
+
+  runtimeConfig: {
+    public: {
+      baseUrl: process.env.URL,
+    },
+  },
+
+  env: {
+    baseUrl: process.env.URL,
+  },
+  head: {
+    title: "nuxt-hxb-sdk",
+    htmlAttrs: {
+      lang: "en",
+    },
     meta: [
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      {
-        hid: 'description',
-        name: 'description',
-        content: 'ElementPlus + Nuxt3',
-      },
+      { charset: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { hid: "description", name: "description", content: "" },
+      { name: "format-detection", content: "telephone=no" },
     ],
-    link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    link: [{ rel: "icon", type: "image/x-icon", href: "/hexabase_logo.png" }],
   },
 
   // css
-  css: ['~/assets/scss/index.scss'],
+  css: ["~/assets/scss/index.scss"],
 
   // build
   build: {
-    transpile: ['element-plus/es'],
+    transpile: ["element-plus/es"],
   },
 
   typescript: {
@@ -35,7 +48,7 @@ export default defineNuxtConfig({
   },
 
   // build modules
-  modules: ['@vueuse/nuxt', '@unocss/nuxt', '@pinia/nuxt'],
+  modules: ["@vueuse/nuxt", "@unocss/nuxt", "@pinia/nuxt"],
 
   // auto import components
   components: true,
@@ -52,4 +65,4 @@ export default defineNuxtConfig({
       scale: 1.2,
     },
   },
-})
+});

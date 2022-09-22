@@ -1,12 +1,15 @@
 <script setup>
-import { ID_INJECTION_KEY } from 'element-plus'
+import { ID_INJECTION_KEY } from "element-plus";
+import "element-plus/es/components/message/style/css";
 
 provide(ID_INJECTION_KEY, {
   prefix: 100,
   current: 0,
-})
+});
 </script>
 
 <template>
-  <NuxtPage />
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 </template>

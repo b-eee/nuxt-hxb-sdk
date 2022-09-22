@@ -1,13 +1,11 @@
-<template>
-  <div class="page-index">
-    <Logos />
-    <Examples />
-  </div>
-</template>
+<script setup>
+import Login from "./auth/login";
 
-<style>
-.page-index {
-  padding-top: 60px;
-  text-align: center;
-}
-</style>
+definePageMeta({
+  middleware: "auth",
+});
+</script>
+
+<template>
+  <h1>Welcome to your dashboard</h1>
+</template>
