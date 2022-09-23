@@ -9,12 +9,8 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      baseUrl: process.env.URL,
+      baseUrl: process.env.NODE_ENV === 'production' ? '' : 'https://hxb-graph.hexabase.com/graphql',
     },
-  },
-
-  env: {
-    baseUrl: process.env.URL,
   },
   head: {
     title: "nuxt-hxb-sdk",
