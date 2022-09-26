@@ -23,7 +23,7 @@ export default defineNuxtConfig({
       { hid: "description", name: "description", content: "" },
       { name: "format-detection", content: "telephone=no" },
     ],
-    link: [{ rel: "icon", type: "image/x-icon", href: "/hexabase_logo.png" }],
+    link: [{ rel: "icon", type: "image/png", href: "../public/favicon.png" }],
   },
 
   // css

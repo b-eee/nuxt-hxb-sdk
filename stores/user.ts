@@ -23,6 +23,15 @@ export const useUserStore = defineStore("user", {
       // for testing only
       this.user.isAuthenticated = true;
     },
+    removeAuth(){
+      this.user = {
+        email: "",
+        name: "",
+        token: "",
+        userId: "",
+        isAuthenticated: false,
+        }
+      }
   },
   getters: {
     // Get the full name whenever we need it
