@@ -18,9 +18,14 @@
 </template>
 
 <script>
+definePageMeta({
+  middleware: auth,
+});
+
+import auth from "../middleware/auth";
 import { ElButton, ElButtonGroup, ElIcon, ElImage } from "element-plus";
-import {useUserStore} from "../stores/user";
-import {navigateTo, useRouter} from "nuxt/app";
+import {userService} from "../services";
+
 export default {
   name: "GeneralHeader",
   components: {
@@ -31,11 +36,7 @@ export default {
   },
   methods: {
     async handleLogout(){
-      const router = useRouter()
-      console.log('log out di a')
-      const userStore = useUserStore();
-      await userStore.removeAuth()
-      await router.push('/')
+      await userService.logout()
     }
   }
 };

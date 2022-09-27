@@ -6,7 +6,7 @@
         style="display: flex; justify-content: space-between"
       >
         <span class="tableTitle">Application in workspace</span>
-        <el-button type="primary" :disabled="true">Create Workspace</el-button>
+        <el-button type="primary" @click="visible = true">Create Workspace</el-button>
       </div>
     </template>
     <div class="item current-id-ws">
@@ -60,6 +60,21 @@
         </el-table>
       </div>
     </div>
+    <el-dialog
+        v-model="visible"
+        title="Create new workspace"
+        width="30%"
+    >
+      <el-input placeholder="please enter workspace name" v-model="newWsName" />
+      <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="handleCloseModal">Cancel</el-button>
+        <el-button type="primary" @click="() => createWorkspace(newWsName)"
+        >Add</el-button
+        >
+      </span>
+      </template>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -76,6 +91,8 @@ import {
   ElSpace,
   ElButton,
   ElLoading,
+  ElDialog,
+  ElInput
 } from "element-plus";
 import { useRuntimeConfig } from "nuxt/app";
 import { ref } from "vue";
@@ -91,6 +108,8 @@ export default {
     ElSpace,
     ElButton,
     ElLoading,
+    ElDialog,
+    ElInput
   },
   name: "Workspace",
   layout: "default",
@@ -136,9 +155,15 @@ export default {
       url,
       isLoading: false,
       loadingData,
+      newWsName: "",
+      visible: false
     };
   },
   methods: {
+    handleCloseModal() {
+      this.visible = false,
+      this.newWsName = ""
+    },
     async getAppAndDsData(url, id) {
       const appAndDs = await appService.getAppAndDs(url, id);
       if (appAndDs) {
@@ -150,10 +175,21 @@ export default {
       this.workspaces = workspaces
       this.curWsId = this.workspaces.current_workspace_id;
       await this.getAppAndDsData(this.url, this.curWsId);
+
     },
     async setCurrentWs(url, wsId) {
       await workspaceService.setWorkspace(url, wsId);
     },
+    async createWorkspace(name) {
+      ElLoading.service()
+      const data = await workspaceService.createWorkspace(this.url, name);
+      await this.getWorkspaces(this.url)
+      this.curWsId = data.w_id
+      ElLoading.service().close()
+      this.visible = false,
+      this.newWsName = ""
+    },
+
     async handleChange() {
       ElLoading.service()
       await this.setCurrentWs(this.url, this.curWsId);
