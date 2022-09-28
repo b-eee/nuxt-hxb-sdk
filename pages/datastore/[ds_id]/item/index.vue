@@ -11,12 +11,14 @@
     </template>
     <div class="item current-id-ws">
       <el-table
+          ref="table"
           :data="dsItems.items"
           style="width: 100%"
       >
 <!--        <el-table-column :prop="appDatastore[0].application_id" label=""></el-table-column>-->
 <!--        <el-table-column :prop="ds_id" label=""></el-table-column>-->
-        <el-table-column prop="created_at" label="Created at"></el-table-column>
+        <el-table-column prop="index" label="No" type="index" width="50"></el-table-column>
+        <el-table-column prop="created_at" label="Created at" :formatter="dateFormat"></el-table-column>
         <el-table-column prop="created_by" label="Created by"></el-table-column>
         <el-table-column prop="d_id" label="Ds id"></el-table-column>
         <el-table-column prop="i_id" label="Item id"></el-table-column>
@@ -45,10 +47,13 @@ import {
   ElDialog,
   ElInput
 } from "element-plus";
+import moment from "moment";
 import {useRoute, useRuntimeConfig} from "nuxt/app";
 import {defineComponent, ref} from "vue";
 import {appService, itemService, workspaceService} from "../../../../services";
 import {DsItemType, GetItemsPlType} from "./type";
+import {TableColumnCtx} from "element-plus/es/components/table/src/table-column/defaults";
+import {tryCatch} from "standard-as-callback/built/utils";
 
 export default defineComponent({
   components: {
@@ -68,9 +73,13 @@ export default defineComponent({
   name: "Workspace",
   layout: "default",
   setup() {
+    const dateFormat = (row: any, column: TableColumnCtx<any>) => {
+      return moment(row.created_at).format('YYYY-MM-DD hh:mm:ss')
+    }
     const urParse = window.location.origin.toString()
     return {
       urParse,
+      dateFormat
     };
   },
   data() {
@@ -78,7 +87,6 @@ export default defineComponent({
     const {ds_id} = route.params
     const config = useRuntimeConfig();
     const url = config.public.baseUrl;
-    const loadingData = ref(true);
     let getItemsParameters: GetItemsPlType = {
       use_or_condition: false,
       sort_field_id: "",
@@ -131,17 +139,18 @@ export default defineComponent({
       }
     },
     async getWorkspaces(url: string) {
-      const workspaces = await workspaceService.getWorkspaces(url);
-      this.workspaces = workspaces
-      this.curWsId = this.workspaces.current_workspace_id;
-      await this.getAppAndDsData(this.url, this.curWsId);
-
+        const tableLoading = ElLoading.service({
+          target: 'table'
+        })
+        const workspaces = await workspaceService.getWorkspaces(url);
+        this.workspaces = workspaces
+        this.curWsId = this.workspaces.current_workspace_id;
+        await this.getAppAndDsData(this.url, this.curWsId);
+        tableLoading.close()
     }
   },
   mounted() {
-    ElLoading.service()
     this.getWorkspaces(this.url);
-    ElLoading.service().close()
   },
 });
 </script>

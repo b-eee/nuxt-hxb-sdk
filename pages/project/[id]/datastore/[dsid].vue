@@ -4,7 +4,8 @@
       <div class="tableTitle">Project</div>
     </template>
     <div>
-      <el-table :data="DatastoreItems.items" :fit="true">
+      <el-table :data="DatastoreItems.items" :fit="true" ref="table">
+        <el-table-column prop="index" type="index" label="No" width="50"></el-table-column>
         <el-table-column prop="id" label="Display id">
           <template #default="scope">
             <el-space direction="vertical" >
@@ -36,6 +37,12 @@ import {
 } from "element-plus";
 import {defineComponent} from "vue";
 import {ItemType} from "~/pages/datastore/[ds_id]/item/type";
+import {definePageMeta} from "#imports";
+import auth from "~/middleware/auth";
+
+definePageMeta({
+  middleware: auth
+})
 
 export default defineComponent({
   name: "datastore",
@@ -77,16 +84,18 @@ export default defineComponent({
   },
   methods: {
     async getItems(url: string, pid: string, dsid: string) {
+      const tableLoading = ElLoading.service({
+        target: 'table'
+      })
       let getItemsParameters = {
         page: 1,
         per_page: 20
       }
-      ElLoading.service()
       const dsItems = await itemService.getItems(url, pid, dsid, getItemsParameters)
       if (dsItems) {
         this.DatastoreItems = dsItems
       }
-      ElLoading.service().close()
+      tableLoading.close()
     }
   },
   mounted() {

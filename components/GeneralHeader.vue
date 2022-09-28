@@ -11,20 +11,17 @@
       <el-space :size="6">
         <el-button type="primary">Profile</el-button>
         <el-button type="success">Start your project</el-button>
-        <el-button type="outlined" @click="handleLogout">Log out</el-button>
+        <el-button v-if="isAuthenticated" type="outline" @click="handleLogout">Log out</el-button>
       </el-space>
     </el-button-group>
   </div>
 </template>
 
 <script>
-definePageMeta({
-  middleware: auth,
-});
-
-import auth from "../middleware/auth";
-import { ElButton, ElButtonGroup, ElIcon, ElImage } from "element-plus";
+import { ElButton, ElButtonGroup, ElIcon, ElImage, ElSpace } from "element-plus";
 import {userService} from "../services";
+import {useUserStore} from "../stores/user";
+import {useRouter} from "nuxt/app";
 
 export default {
   name: "GeneralHeader",
@@ -32,12 +29,20 @@ export default {
     ElButton,
     ElButtonGroup,
     ElIcon,
-    ElImage
+    ElImage,
+    ElSpace
+  },
+  data(){
+    const userStore = useUserStore()
+    const isAuthenticated = userStore.userInfo?.isAuthenticated
+    return {
+      isAuthenticated
+    }
   },
   methods: {
     async handleLogout(){
       await userService.logout()
-    }
+    },
   }
 };
 </script>

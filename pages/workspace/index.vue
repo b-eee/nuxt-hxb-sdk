@@ -31,7 +31,14 @@
         <el-table
             :data="appDatastore"
             style="width: 100%"
+            ref="table"
         >
+          <el-table-column
+            prop="index"
+            type="index"
+            label="No"
+            width="50"
+          />
           <el-table-column
             prop="application_id"
             label="Application id"
@@ -78,7 +85,7 @@
   </el-card>
 </template>
 
-<script>
+<script lang="ts">
 import { appService, workspaceService } from "../../services";
 import {
   ElSelect,
@@ -88,15 +95,19 @@ import {
   ElTableColumn,
   ElRow,
   ElCol,
-  ElSpace,
   ElButton,
   ElLoading,
   ElDialog,
   ElInput
 } from "element-plus";
 import { useRuntimeConfig } from "nuxt/app";
-import { ref } from "vue";
-export default {
+import {defineComponent, ref} from "vue";
+import {definePageMeta} from "#imports";
+import auth from "../../middleware/auth";
+definePageMeta({
+  middleware: auth
+})
+export default defineComponent({
   components: {
     ElSelect,
     ElOption,
@@ -105,7 +116,6 @@ export default {
     ElTableColumn,
     ElRow,
     ElCol,
-    ElSpace,
     ElButton,
     ElLoading,
     ElDialog,
@@ -181,28 +191,30 @@ export default {
       await workspaceService.setWorkspace(url, wsId);
     },
     async createWorkspace(name) {
-      ElLoading.service()
+      const tableLoading = ElLoading.service({
+        target: 'table'
+      })
       const data = await workspaceService.createWorkspace(this.url, name);
       await this.getWorkspaces(this.url)
       this.curWsId = data.w_id
-      ElLoading.service().close()
       this.visible = false,
       this.newWsName = ""
+      tableLoading.close()
     },
 
     async handleChange() {
-      ElLoading.service()
+      const tableLoading = ElLoading.service({
+        target: 'table'
+      })
       await this.setCurrentWs(this.url, this.curWsId);
       await this.getWorkspaces(this.url);
-      ElLoading.service().close()
+      tableLoading.close()
     },
   },
   mounted() {
-    ElLoading.service()
     this.getWorkspaces(this.url);
-    ElLoading.service().close()
   },
-};
+});
 </script>
 
 <style scoped>

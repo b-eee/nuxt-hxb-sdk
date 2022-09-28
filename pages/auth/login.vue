@@ -1,0 +1,172 @@
+<template>
+  <div class="login-wrapper">
+    <el-form
+      ref="ruleFormRef"
+      :model="ruleForm"
+      status-icon
+      :rules="rules"
+      label-width="120px"
+      title="Hexabase"
+      class="login-form"
+      size="large"
+      scroll-to-error
+    >
+      <el-space
+        wrap
+        :size="6"
+        direction="vertical"
+        style="
+          font-size: 30px;
+          font-weight: bold;
+          width: 100%;
+          text-align: center;
+          margin-bottom: 20px;
+        "
+      >
+        <span> Hexabase </span>
+      </el-space>
+      <el-form-item label="Email" prop="email">
+        <el-input
+          v-model="ruleForm.email"
+          type="email"
+          autocomplete="off"
+          clear
+        />
+      </el-form-item>
+      <el-form-item label="Password" prop="password">
+        <el-input
+          v-model="ruleForm.password"
+          type="password"
+          autocomplete="off"
+          show-password
+          clear
+        />
+      </el-form-item>
+      <el-form-item>
+        <el-button
+          key="submit"
+          htmlType="submit"
+          type="primary"
+          @click.prevent="onSubmit(ruleForm)"
+          >Login</el-button
+        >
+        <el-button type="primary"> Register </el-button>
+      </el-form-item>
+    </el-form>
+  </div>
+</template>
+
+<script lang="ts">
+import type { FormInstance } from "element-plus";
+import { ElForm, ElFormItem, ElInput, ElButton, ElSpace, ElLoading } from "element-plus";
+import "element-plus/es/components/message/style/css";
+import { userService } from "~~/services/user.service";
+import { alertService } from "~~/services/alert.service";
+import {defineComponent, ref} from "vue";
+import { useUserStore } from "~~/stores/user";
+import auth from "~~/middleware/auth";
+import {definePageMeta} from "#imports";
+
+interface LoginInputTypes {
+  email: string;
+  password: string;
+}
+
+definePageMeta({
+  layout: false,
+  middleware: auth
+});
+
+export default defineComponent({
+  setup() {
+    const userStore = useUserStore();
+    const ruleFormRef = ref<FormInstance>();
+
+    const checkEmail = (rule: any, value: any, callback: any) => {
+      if (!value) {
+        return callback(new Error("Please input the email"));
+      }
+    };
+
+    const validatePass = (rule: any, value: any, callback: any) => {
+      if (value === "") {
+        callback(new Error("Please input the password"));
+      } else {
+        // if (ruleForm.password !== "") {
+        //   if (!ruleFormRef.value) return;
+        //   ruleFormRef.value.validateField("password", () => null);
+        // }
+        callback();
+      }
+    };
+
+    const ruleForm = reactive({
+      email: "",
+      password: "",
+    });
+
+    const rules = reactive({
+      email: [{ validator: checkEmail, trigger: "blur" }],
+      password: [{ validator: validatePass, trigger: "blur" }],
+    });
+
+    return {
+      rules,
+      ruleForm,
+      ruleFormRef,
+      userStore,
+    };
+  },
+  components: {
+    ElForm,
+    ElFormItem,
+    ElInput,
+    ElButton,
+    ElSpace,
+    ElLoading
+  },
+  data() {
+    const config = useRuntimeConfig();
+    const baseUrl = config.public.baseUrl;
+    return {
+      isLoading: false,
+      baseUrl,
+    };
+  },
+  mounted() {
+    console.log(process.env);
+  },
+  methods: {
+    async onSubmit(ruleForm: any) {
+      const loginParams = {
+        email: ruleForm.email,
+        password: ruleForm.password,
+      };
+      try {
+        ElLoading.service()
+        const token = await userService.login(
+            this.baseUrl,
+            loginParams.email,
+            loginParams.password
+        );
+        token && await this.userStore.updateAuth(token);
+        token && this.$router.push("/");
+      } catch {
+        alertService.error('Login fail, please try again')
+      }finally {
+        ElLoading.service().close()
+      }
+      }
+  },
+});
+</script>
+
+<style scoped>
+.login-wrapper {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>

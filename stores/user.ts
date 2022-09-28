@@ -19,10 +19,6 @@ export const useUserStore = defineStore("user", {
         this.user.token = token;
       }
     },
-    changeAuthTemp() {
-      // for testing only
-      this.user.isAuthenticated = true;
-    },
     removeAuth(){
       this.user = {
         email: "",
@@ -40,6 +36,7 @@ export const useUserStore = defineStore("user", {
         email: this.user.email,
         name: this.user.name,
         userId: this.user.userId,
+        isAuthenticated: this.user.isAuthenticated
       };
     },
   },
