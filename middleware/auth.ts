@@ -3,16 +3,14 @@ import { defineNuxtRouteMiddleware, navigateTo } from "nuxt/app";
 
 export default defineNuxtRouteMiddleware((to, from) => {
   const userStore = useUserStore();
-
-    // if (
-    //   !userStore.userInfo.isAuthenticated) {
-    //   if (to.path !== "/" && to.path !== "/auth/login") {
-    //     return navigateTo("/");
-    //   }
-    // }
-    // if (userStore.userInfo.isAuthenticated) {
-    //   if (to.path === "/" || to.path === "/auth/login") {
-    //     return navigateTo("/workspace");
-    //   }
-    // }
+  // // if (!userStore.userInfo.isAuthenticated) {
+  // //   if (to.path !== "/" && to.path !== "/auth/login") {
+  // //     return navigateTo("/");
+  // //   }
+  // // }
+  if (userStore.userInfo.isAuthenticated) {
+    if (to.path === "/" || to.path === "/auth/login") {
+      return navigateTo("/workspace");
+    }
+  }
 });
