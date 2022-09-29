@@ -1,9 +1,8 @@
 import { createClient } from "@hexabase/hexabase-js";
-import {useUserStore} from "~/stores/user";
-import {useRouter} from "nuxt/app";
-import {BehaviorSubject} from "rxjs";
-import {useHexabaseClient} from "~/stores/hexabaseToken";
-
+import { useUserStore } from "~/stores/user";
+import { useRouter } from "nuxt/app";
+import { BehaviorSubject } from "rxjs";
+import { useHexabaseClient } from "~/stores/hexabaseToken";
 
 const userSubject = new BehaviorSubject(
   process.browser && JSON.parse(localStorage.getItem("user"))
@@ -19,15 +18,19 @@ export const userService = {
 };
 
 async function login(baseUrl, email, password) {
-  const hexabaseStore = useHexabaseClient();
-  const hexabase = await createClient({ url: baseUrl, token: user.token, email, password });
+  // const hexabaseStore = useHexabaseClient();
   let user = {};
-  const { token, error } = await hexabase.auth.login({email, password});
-  hexabaseStore.setToken(token)
+  const hexabase = await createClient({
+    url: baseUrl,
+    token: user.token,
+    email,
+    password,
+  });
+  const { token, error } = await hexabase.auth.login({ email, password });
+  // hexabaseStore.setToken(token)
   if (token && !error) {
     const { userInfo, error } = await hexabase.auth.get(token);
-    if(!error)
-    {
+    if (!error) {
       user = userInfo;
     }
     user.token = token;
@@ -41,10 +44,10 @@ async function login(baseUrl, email, password) {
 async function logout() {
   localStorage.removeItem("user");
   userSubject.next(null);
-  const user = useUserStore()
-  user.removeAuth()
-  const router = useRouter()
-  await router.push('/auth/login')
+  const user = useUserStore();
+  user.removeAuth();
+  const router = useRouter();
+  await router.push("/auth/login");
 }
 
 function register(user) {

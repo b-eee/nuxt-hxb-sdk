@@ -149,6 +149,7 @@ export default defineComponent({
         email: ruleForm.email,
         password: ruleForm.password,
       };
+      console.log(loginParams);
       try {
         ElLoading.service();
         const token = await userService.login(
@@ -161,6 +162,7 @@ export default defineComponent({
       } catch {
         alertService.error("Login fail, please try again");
       } finally {
+        this.$router.push("/workspace");
         ElLoading.service().close();
       }
     },
