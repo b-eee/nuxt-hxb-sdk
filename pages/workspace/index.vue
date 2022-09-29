@@ -21,7 +21,7 @@
         >
           <el-option
             v-for="ws in workspaces.workspaces"
-            :key="ws.value"
+            :key="ws.workspace_id"
             :label="ws.workspace_name"
             :value="ws.workspace_id"
           />

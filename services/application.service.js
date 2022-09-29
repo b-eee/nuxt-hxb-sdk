@@ -8,10 +8,9 @@ export const appService = {
     getApplication
 };
 
-const user = JSON.parse(localStorage.getItem('user'))
-
 //get projects and datastores
 async function getAppAndDs(url, id) {
+    const user = JSON.parse(localStorage.getItem('user'))
     const hexabase = await createClient({ url, token: user.token})
     const {appAndDs, error} = await hexabase.applications.getProjectsAndDatastores(id)
     return appAndDs
@@ -19,6 +18,7 @@ async function getAppAndDs(url, id) {
 
 //create project
 async function createApp(url, createProjectParams) {
+    const user = JSON.parse(localStorage.getItem('user'))
     const hexabase = await createClient({ url, token: user.token})
     const {application, error} = await hexabase.applications.createApp(createProjectParams)
     return application
@@ -26,6 +26,7 @@ async function createApp(url, createProjectParams) {
 
 //get reports
 async function getReports(url, projectId) {
+    const user = JSON.parse(localStorage.getItem('user'))
     const hexabase = await createClient({ url, token: user.token})
     const {application, error} = await hexabase.applications.getReports(projectId)
     return application
@@ -33,6 +34,7 @@ async function getReports(url, projectId) {
 
 //get data reports
 async function getDataReport(url, projectId, reportId, reportDataPayload) {
+    const user = JSON.parse(localStorage.getItem('user'))
     const hexabase = await createClient({ url, token: user.token})
     const {dataReport, error} = await hexabase.applications.getDataReport(projectId, reportId, reportDataPayload)
     return dataReport
@@ -40,6 +42,7 @@ async function getDataReport(url, projectId, reportId, reportDataPayload) {
 
 //get application
 async function getApplication(url, projectId) {
+    const user = JSON.parse(localStorage.getItem('user'))
     const hexabase = await createClient({ url, token: user.token})
     const {dataReport, error} = await hexabase.applications.get(projectId)
     return dataReport

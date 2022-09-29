@@ -152,17 +152,18 @@ export default defineComponent({
       console.log(loginParams);
       try {
         ElLoading.service();
-        const token = await userService.login(
+        const {token} = await userService.login(
           this.baseUrl,
           loginParams.email,
           loginParams.password
         );
-        token && (await this.userStore.updateAuth(token));
-        token && this.$router.push("/workspace");
+        // token && (await this.userStore.updateAuth(token));
+        if (token) {
+          this.$router.push("/workspace");
+        }
       } catch {
         alertService.error("Login fail, please try again");
       } finally {
-        this.$router.push("/workspace");
         ElLoading.service().close();
       }
     },

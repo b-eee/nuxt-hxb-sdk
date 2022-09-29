@@ -25,7 +25,7 @@
         <el-table-column prop="p_id" label="App id"></el-table-column>
         <el-table-column prop="rev_no" label="Review no" width="100"></el-table-column>
         <el-table-column prop="status_id" label="Status id"></el-table-column>
-        <el-table-column prop="title" label="Title" width="120"></el-table-column>
+        <el-table-column prop="title" label="Title" width="fit-content"></el-table-column>
         <el-table-column prop="unread" label="Unread" width="100"></el-table-column>
       </el-table>
     </div>
