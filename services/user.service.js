@@ -29,7 +29,7 @@ async function login(baseUrl, email, password) {
   const { token, error } = await hexabase.auth.login({ email, password });
   // hexabaseStore.setToken(token)
   if (token && !error) {
-    const { userInfo, error } = await hexabase.auth.get(token);
+    const { userInfo, error } = await hexabase.users.get(token);
     if (!error) {
       user = userInfo;
     }
