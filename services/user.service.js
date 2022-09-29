@@ -1,7 +1,9 @@
-import { BehaviorSubject } from "rxjs";
 import { createClient } from "@hexabase/hexabase-js";
 import {useUserStore} from "~/stores/user";
 import {useRouter} from "nuxt/app";
+import {BehaviorSubject} from "rxjs";
+import {useHexabaseClient} from "~/stores/hexabaseToken";
+
 
 const userSubject = new BehaviorSubject(
   process.browser && JSON.parse(localStorage.getItem("user"))
@@ -17,9 +19,11 @@ export const userService = {
 };
 
 async function login(baseUrl, email, password) {
-  let user = {};
+  const hexabaseStore = useHexabaseClient();
   const hexabase = await createClient({ url: baseUrl, token: user.token, email, password });
+  let user = {};
   const { token, error } = await hexabase.auth.login({email, password});
+  hexabaseStore.setToken(token)
   if (token && !error) {
     const { userInfo, error } = await hexabase.auth.get(token);
     if(!error)
