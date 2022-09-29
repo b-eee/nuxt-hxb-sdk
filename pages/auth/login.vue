@@ -58,14 +58,21 @@
 
 <script lang="ts">
 import type { FormInstance } from "element-plus";
-import { ElForm, ElFormItem, ElInput, ElButton, ElSpace, ElLoading } from "element-plus";
+import {
+  ElForm,
+  ElFormItem,
+  ElInput,
+  ElButton,
+  ElSpace,
+  ElLoading,
+} from "element-plus";
 import "element-plus/es/components/message/style/css";
 import { userService } from "~~/services/user.service";
 import { alertService } from "~~/services/alert.service";
-import {defineComponent, ref} from "vue";
+import { defineComponent, ref } from "vue";
 import { useUserStore } from "~~/stores/user";
 import auth from "~~/middleware/auth";
-import {definePageMeta} from "#imports";
+import { definePageMeta } from "#imports";
 
 interface LoginInputTypes {
   email: string;
@@ -74,7 +81,7 @@ interface LoginInputTypes {
 
 definePageMeta({
   layout: false,
-  middleware: auth
+  middleware: auth,
 });
 
 export default defineComponent({
@@ -123,7 +130,7 @@ export default defineComponent({
     ElInput,
     ElButton,
     ElSpace,
-    ElLoading
+    ElLoading,
   },
   data() {
     const config = useRuntimeConfig();
@@ -143,20 +150,20 @@ export default defineComponent({
         password: ruleForm.password,
       };
       try {
-        ElLoading.service()
+        ElLoading.service();
         const token = await userService.login(
-            this.baseUrl,
-            loginParams.email,
-            loginParams.password
+          this.baseUrl,
+          loginParams.email,
+          loginParams.password
         );
-        token && await this.userStore.updateAuth(token);
-        token && this.$router.push("/");
+        token && (await this.userStore.updateAuth(token));
+        token && this.$router.push("/workspace");
       } catch {
-        alertService.error('Login fail, please try again')
-      }finally {
-        ElLoading.service().close()
+        alertService.error("Login fail, please try again");
+      } finally {
+        ElLoading.service().close();
       }
-      }
+    },
   },
 });
 </script>
