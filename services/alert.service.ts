@@ -2,7 +2,7 @@ import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 export const alertService = {
-    onAlert,
+    // onAlert,
     success,
     error,
     info,
@@ -22,29 +22,29 @@ const alertSubject = new Subject();
 const defaultId = 'default-alert';
 
 // enable subscribing to alerts observable
-function onAlert(id = defaultId) {
-    return alertSubject.asObservable().pipe(filter(x => x && x.id === id));
-}
+// function onAlert(id = defaultId) {
+//     return alertSubject.asObservable().pipe(filter(x => x.id === id));
+// }
 
 // convenience methods
-function success(message, options) {
+function success(message: string, options: any) {
     alert({ ...options, type: AlertType.Success, message });
 }
 
-function error(message, options) {
+function error(message: string, options: any) {
     alert({ ...options, type: AlertType.Error, message });
 }
 
-function info(message, options) {
+function info(message: string, options: any) {
     alert({ ...options, type: AlertType.Info, message });
 }
 
-function warn(message, options) {
+function warn(message: string, options: any) {
     alert({ ...options, type: AlertType.Warning, message });
 }
 
 // core alert method
-function alert(alert) {
+function alert(alert: any) {
     alert.id = alert.id || defaultId;
     alert.autoClose = (alert.autoClose === undefined ? true : alert.autoClose);
     alertSubject.next(alert);

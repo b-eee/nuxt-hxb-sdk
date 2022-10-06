@@ -25,6 +25,8 @@ import {
   ElMain,
   ElFooter
 } from 'element-plus'
+import {useRouter} from "nuxt/app";
+import {useUser} from "../store/user";
 export default {
   components: {
     ElHeader,
@@ -34,6 +36,16 @@ export default {
     ElFooter,
     GeneralHeader
   },
+  setup(){
+    const router = useRouter()
+
+    router.beforeEach((to, from) => {
+      const {isAuthenticated} = useUser().userInfo
+      if (to.path !== '/auth/login' && !isAuthenticated) {
+        return '/auth/login'
+      }
+    })
+  }
 };
 </script>
 

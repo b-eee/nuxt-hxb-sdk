@@ -4,13 +4,12 @@ import ElementPlus from "unplugin-element-plus/vite";
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
   ssr: false,
-
   target: "static",
-
-  runtimeConfig: {
-    public: {
-      baseUrl: process.env.NODE_ENV === 'production' ? '' : 'https://hxb-graph.hexabase.com/graphql',
-    },
+  env: {
+    baseUrl: 'https://hxb-graph.hexabase.com/graphql',
+  },
+    publicRuntimeConfig: {
+      baseUrl: process.env.URL || 'https://hxb-graph.hexabase.com/graphql',
   },
   head: {
     title: "nuxt-hxb-sdk",

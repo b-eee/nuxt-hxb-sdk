@@ -46,11 +46,11 @@
         <el-button
           key="submit"
           htmlType="submit"
-          type="primary"
+          style="background-color: mediumseagreen; color: #fff"
           @click.prevent="onSubmit(ruleForm)"
           >Login</el-button
         >
-        <el-button type="primary"> Register </el-button>
+        <el-button style="background-color: mediumseagreen; color: #fff"> Register </el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -67,12 +67,13 @@ import {
   ElLoading,
 } from "element-plus";
 import "element-plus/es/components/message/style/css";
-import { userService } from "~~/services/user.service";
-import { alertService } from "~~/services/alert.service";
-import { defineComponent, ref } from "vue";
-import { useUserStore } from "~~/stores/user";
-import auth from "~~/middleware/auth";
-import { definePageMeta } from "#imports";
+import { userService } from "~/services/user.service";
+import { alertService } from "~/services/alert.service";
+import {createApp, defineComponent, reactive, ref} from "vue";
+import {definePageMeta} from "#imports";
+import {useRuntimeConfig, useState} from "nuxt/app";
+import auth from "~/middleware/auth";
+import {useUser} from "~/store/user";
 
 interface LoginInputTypes {
   email: string;
@@ -85,8 +86,7 @@ definePageMeta({
 });
 
 export default defineComponent({
-  setup() {
-    const userStore = useUserStore();
+  async setup() {
     const ruleFormRef = ref<FormInstance>();
 
     const checkEmail = (rule: any, value: any, callback: any) => {
@@ -113,15 +113,14 @@ export default defineComponent({
     });
 
     const rules = reactive({
-      email: [{ validator: checkEmail, trigger: "blur" }],
-      password: [{ validator: validatePass, trigger: "blur" }],
+      email: [{validator: checkEmail, trigger: "blur"}],
+      password: [{validator: validatePass, trigger: "blur"}],
     });
 
     return {
       rules,
       ruleForm,
       ruleFormRef,
-      userStore,
     };
   },
   components: {
@@ -141,28 +140,27 @@ export default defineComponent({
     };
   },
   mounted() {
-    console.log(process.env);
   },
   methods: {
-    async onSubmit(ruleForm: any) {
+    async onSubmit(ruleForm: LoginInputTypes) {
       const loginParams = {
         email: ruleForm.email,
         password: ruleForm.password,
       };
-      console.log(loginParams);
+
       try {
         ElLoading.service();
-        const {token} = await userService.login(
+        console.log('go there')
+        const token = await userService.login(
           this.baseUrl,
           loginParams.email,
           loginParams.password
         );
-        // token && (await this.userStore.updateAuth(token));
-        if (token) {
-          this.$router.push("/workspace");
-        }
+        // token && await useHexabaseClient().updateHxbClient(token)
+        token && useUser().updateAuth(token);
+        this.$router.push("/workspace");
       } catch {
-        alertService.error("Login fail, please try again");
+        alertService.error("Login fail, please try again", {});
       } finally {
         ElLoading.service().close();
       }

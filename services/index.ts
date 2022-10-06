@@ -1,3 +1,5 @@
+import {createClient} from "@hexabase/hexabase-js";
+
 export * from './alert.service';
 export * from './user.service';
 export * from './workspace.service';

@@ -54,6 +54,9 @@ import {appService, itemService, workspaceService} from "../../../../services";
 import {DsItemType, GetItemsPlType} from "./type";
 import {TableColumnCtx} from "element-plus/es/components/table/src/table-column/defaults";
 import {tryCatch} from "standard-as-callback/built/utils";
+import {DsItems} from "@hexabase/hexabase-js/dist/lib/types/item";
+import {ApplicationAndDataStore} from "@hexabase/hexabase-js/dist/lib/types/application";
+import {Workspaces} from "@hexabase/hexabase-js/dist/lib/types/workspace";
 
 export default defineComponent({
   components: {
@@ -96,61 +99,46 @@ export default defineComponent({
     return {
       getItemsParameters,
       ds_id,
-      workspaces: {
-        current_workspace_id: "",
-        workspaces: [
-          {
-            workspace_name: "",
-            workspace_id: "",
-          },
-        ],
-      },
+      workspaces: {} as Workspaces | undefined,
       curWsId: "",
-      appDatastore: [
-        {
-          application_id: "",
-          datastores: null,
-          display_id: "",
-          name: "",
-        },
-      ],
+      appDatastore: [{}] as [ApplicationAndDataStore],
       url,
-      dsItems: {
-        items: [],
-        totalItems: 0
-      }
+      dsItems: {} as  DsItems | undefined
     };
   },
   methods: {
-    async getItems(url: string, applicationId: string, datastoreId: string) {
+    async getItems(applicationId: string, datastoreId: string) {
       const data = await itemService.getItems(
-          url,
           applicationId,
           datastoreId,
           this.getItemsParameters
       )
       this.dsItems = data
     },
-    async getAppAndDsData(url: string, id: string) {
-      const appAndDs = await appService.getAppAndDs(url, id);
+    async getAppAndDsData(id: string) {
+      const appAndDs = await appService.getAppAndDs(id);
       if (appAndDs) {
         this.appDatastore = appAndDs;
-        await  this.getItems(this.url, this.appDatastore[0].application_id, this.ds_id as string)
+        if(this.appDatastore[0].application_id){
+          await  this.getItems(this.appDatastore[0].application_id, this.ds_id as string)
+        }
       }
     },
-    async getWorkspaces(url: string) {
+    async getWorkspaces() {
         const tableLoading = ElLoading.service({
           target: 'table'
         })
-        const workspaces = await workspaceService.getWorkspaces(url);
+        const workspaces = await workspaceService.getWorkspaces();
         this.workspaces = workspaces
-        this.curWsId = this.workspaces.current_workspace_id;
-        await this.getAppAndDsData(this.url, this.curWsId);
+        if (this.workspaces && this.workspaces.current_workspace_id){
+          this.curWsId = this.workspaces.current_workspace_id;
+        }
+        await this.getAppAndDsData(this.curWsId);
         tableLoading.close()
     }
   },
   mounted() {
-    this.getWorkspaces(this.url);
+    this.getWorkspaces();
   },
 });
 </script>

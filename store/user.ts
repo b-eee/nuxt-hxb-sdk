@@ -1,13 +1,10 @@
 import { defineStore } from "pinia";
 
-export const useUserStore = defineStore("user", {
+export const useUser = defineStore("user", {
   state: () => {
     return {
       user: {
-        email: "",
-        name: "",
         token: "",
-        userId: "",
         isAuthenticated: false,
       },
     };
@@ -21,10 +18,7 @@ export const useUserStore = defineStore("user", {
     },
     removeAuth(){
       this.user = {
-        email: "",
-        name: "",
         token: "",
-        userId: "",
         isAuthenticated: false,
         }
       }
@@ -33,9 +27,6 @@ export const useUserStore = defineStore("user", {
     // Get the full name whenever we need it
     userInfo(): any {
       return {
-        email: this.user.email,
-        name: this.user.name,
-        userId: this.user.userId,
         isAuthenticated: this.user.isAuthenticated
       };
     },

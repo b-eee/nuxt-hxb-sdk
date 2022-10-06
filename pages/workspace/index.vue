@@ -98,12 +98,14 @@ import {
   ElButton,
   ElLoading,
   ElDialog,
-  ElInput
+  ElInput, ElNotification
 } from "element-plus";
 import { useRuntimeConfig } from "nuxt/app";
 import {defineComponent, ref} from "vue";
 import {definePageMeta} from "#imports";
 import auth from "../../middleware/auth";
+import {ApplicationAndDataStore} from "@hexabase/hexabase-js/dist/lib/types/application";
+import {Workspaces} from "@hexabase/hexabase-js/dist/lib/types/workspace";
 definePageMeta({
   middleware: auth
 })
@@ -124,6 +126,13 @@ export default defineComponent({
   name: "Workspace",
   layout: "default",
   setup() {
+    const successNotif = (message?: string) => {
+      ElNotification({
+        title: 'Success',
+        message: message || 'Workspace created',
+        type: 'success',
+      })
+    }
     const loading = ref(true)
     const urParse = window.location.origin.toString();
     const loadingScreenOptions = {
@@ -137,6 +146,7 @@ export default defineComponent({
       loading,
       urParse,
       loadingScreenOptions,
+      successNotif
     };
   },
   data() {
@@ -144,24 +154,9 @@ export default defineComponent({
     const url = config.public.baseUrl;
     const loadingData = ref(true);
     return {
-      workspaces: {
-        current_workspace_id: "",
-        workspaces: [
-          {
-            workspace_name: "",
-            workspace_id: "",
-          },
-        ],
-      },
+      workspaces: {} as Workspaces | undefined,
       curWsId: "",
-      appDatastore: [
-        {
-          application_id: "",
-          datastores: null,
-          display_id: "",
-          name: "",
-        },
-      ],
+      appDatastore: [{}] as [ApplicationAndDataStore],
       url,
       isLoading: false,
       loadingData,
@@ -174,31 +169,35 @@ export default defineComponent({
       this.visible = false,
       this.newWsName = ""
     },
-    async getAppAndDsData(url, id) {
-      const appAndDs = await appService.getAppAndDs(url, id);
+    async getAppAndDsData(id: string) {
+      const appAndDs = await appService.getAppAndDs(id);
       if (appAndDs) {
         this.appDatastore = appAndDs;
       }
     },
-    async getWorkspaces(url) {
-      const workspaces = await workspaceService.getWorkspaces(url);
+    async getWorkspaces() {
+      const workspaces = await workspaceService.getWorkspaces();
       this.workspaces = workspaces
+      if (this.workspaces && this.workspaces.current_workspace_id)
       this.curWsId = this.workspaces.current_workspace_id;
-      await this.getAppAndDsData(this.url, this.curWsId);
+      await this.getAppAndDsData(this.curWsId);
 
     },
-    async setCurrentWs(url, wsId) {
-      await workspaceService.setWorkspace(url, wsId);
+    async setCurrentWs(wsId: string) {
+      await workspaceService.setWorkspace(wsId);
     },
-    async createWorkspace(name) {
+    async createWorkspace(name: string) {
       const tableLoading = ElLoading.service({
         target: 'table'
       })
-      const data = await workspaceService.createWorkspace(this.url, name);
-      await this.getWorkspaces(this.url)
-      this.curWsId = data.w_id
+      const w_id = await workspaceService.createWorkspace(name);
+      await this.getWorkspaces()
+      if (w_id){
+        this.curWsId = w_id
+      }
       this.visible = false,
       this.newWsName = ""
+      this.successNotif()
       tableLoading.close()
     },
 
@@ -206,13 +205,17 @@ export default defineComponent({
       const tableLoading = ElLoading.service({
         target: 'table'
       })
-      await this.setCurrentWs(this.url, this.curWsId);
-      await this.getWorkspaces(this.url);
+      await this.setCurrentWs(this.curWsId);
+      await this.getWorkspaces();
       tableLoading.close()
     },
   },
   mounted() {
-    this.getWorkspaces(this.url);
+    const tableLoading = ElLoading.service({
+      target: 'table'
+    })
+    this.getWorkspaces();
+    tableLoading.close()
   },
 });
 </script>

@@ -1,16 +1,16 @@
-import { useUserStore } from "~~/stores/user";
 import { defineNuxtRouteMiddleware, navigateTo } from "nuxt/app";
+import {useUser} from "~/store/user";
 
 export default defineNuxtRouteMiddleware((to, from) => {
-  const userStore = useUserStore();
+  const userStore = useUser();
   // // if (!userStore.userInfo.isAuthenticated) {
   // //   if (to.path !== "/" && to.path !== "/auth/login") {
   // //     return navigateTo("/");
   // //   }
   // // }
-  if (userStore.userInfo.isAuthenticated) {
-    if (to.path === "/" || to.path === "/auth/login") {
-      return navigateTo("/workspace");
-    }
-  }
+  // if (userStore.userInfo.isAuthenticated) {
+  //   if (to.path === "/" || to.path === "/auth/login") {
+  //     return navigateTo("/workspace");
+  //   }
+  // }
 });

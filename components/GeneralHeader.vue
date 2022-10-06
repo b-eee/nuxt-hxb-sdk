@@ -9,9 +9,11 @@
     </div>
     <el-button-group>
       <el-space :size="6">
-        <el-button type="primary">Profile</el-button>
-        <el-button type="success">Start your project</el-button>
-        <el-button v-if="isAuthenticated" type="outline" @click="handleLogout">Log out</el-button>
+        <el-button style="background-color: mediumseagreen; color: #fff">Profile</el-button>
+        <el-button style="background-color: mediumseagreen; color: #fff">Start your project</el-button>
+<!--        <div v-if="isAuthenticated">-->
+          <el-button @click="handleLogout">Log out</el-button>
+<!--        </div>-->
       </el-space>
     </el-button-group>
   </div>
@@ -20,7 +22,7 @@
 <script>
 import { ElButton, ElButtonGroup, ElIcon, ElImage, ElSpace } from "element-plus";
 import {userService} from "../services";
-import {useUserStore} from "../stores/user";
+import {useUser} from "../store/user";
 import {useRouter} from "nuxt/app";
 
 export default {
@@ -33,8 +35,8 @@ export default {
     ElSpace
   },
   data(){
-    const userStore = useUserStore()
-    const isAuthenticated = userStore.userInfo?.isAuthenticated
+    const {isAuthenticated} = useUser().userInfo
+    console.log(useUser().userInfo)
     return {
       isAuthenticated
     }
@@ -42,6 +44,7 @@ export default {
   methods: {
     async handleLogout(){
       await userService.logout()
+      await useRouter().push('/auth/login')
     },
   }
 };

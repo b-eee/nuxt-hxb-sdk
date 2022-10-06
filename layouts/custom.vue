@@ -1,9 +1,9 @@
 <template>
-  <div class="common-layout">
+  <div class="custom-layout">
     <el-container direction="vertical">
       <general-header />
         <el-container>
-          <el-main style="width: 100%; max-width: 100%">
+          <el-main style="width: 100%; max-width: 100%; height: calc(100vh - 64px); background-image: url('https://www.hexabase.com/wp-content/uploads/2022/03/bg-2022main3.png')">
             <slot />
           </el-main>
         </el-container>

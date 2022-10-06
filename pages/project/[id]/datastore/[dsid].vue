@@ -1,7 +1,7 @@
 <template>
   <el-card class="box-card">
     <template #header>
-      <div class="tableTitle">Project</div>
+      <div class="tableTitle">Datastore</div>
     </template>
     <div>
       <el-table :data="DatastoreItems.items" :fit="true" ref="table">
@@ -9,7 +9,7 @@
         <el-table-column prop="id" label="Display id">
           <template #default="scope">
             <el-space direction="vertical" >
-              <nuxt-link :href="`${urParse}/datastore/${scope.row.d_id}/item/`">
+              <nuxt-link :href="`${urParse}/datastore/${scope.row.d_id}/item/${scope.row.i_id}`">
 <!--                ${scope.row.i_id}-->
                 {{ scope.row.title ? scope.row.title : scope.row.i_id }}
               </nuxt-link>
@@ -83,7 +83,7 @@ export default defineComponent({
     }
   },
   methods: {
-    async getItems(url: string, pid: string, dsid: string) {
+    async getItems(pid: string, dsid: string) {
       const tableLoading = ElLoading.service({
         target: 'table'
       })
@@ -91,7 +91,7 @@ export default defineComponent({
         page: 1,
         per_page: 20
       }
-      const dsItems = await itemService.getItems(url, pid, dsid, getItemsParameters)
+      const dsItems = await itemService.getItems(pid, dsid, getItemsParameters)
       if (dsItems) {
         this.DatastoreItems = dsItems
       }
@@ -99,7 +99,7 @@ export default defineComponent({
     }
   },
   mounted() {
-    this.getItems(this.baseUrl, this.id as string, this.dsid as string)
+    this.getItems(this.id as string, this.dsid as string)
   }
 })
 </script>
