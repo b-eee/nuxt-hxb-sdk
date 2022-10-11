@@ -1,17 +1,8 @@
 <template>
   <div>
   <p style="font-size: 30px; font-weight: bold; color: mediumseagreen">
-    Welcome to Hexabase,
-    <br />
-    please login to continute</p>
-
-    <nuxt-link  to="/auth/login">
-      <el-button style="padding: 20px 30px;background-color: mediumseagreen; color: #fff" >
-      Log In
-      </el-button>
-    </nuxt-link>
-
-
+    Welcome to Hexabase
+  </p>
   </div>
 </template>
 

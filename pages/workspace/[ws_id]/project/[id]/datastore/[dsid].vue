@@ -9,7 +9,7 @@
         <el-table-column prop="id" label="Display id">
           <template #default="scope">
             <el-space direction="vertical" >
-              <nuxt-link :href="`${urParse}/datastore/${scope.row.d_id}/item/${scope.row.i_id}`">
+              <nuxt-link :href="`${dsid}/item/${scope.row.i_id}`">
 <!--                ${scope.row.i_id}-->
                 {{ scope.row.title ? scope.row.title : scope.row.i_id }}
               </nuxt-link>
@@ -26,7 +26,6 @@
 
 <script lang="ts">
 import {useRoute, useRuntimeConfig} from "nuxt/app";
-import {itemService} from "../../../../services";
 import {
   ElTable,
   ElTableColumn,
@@ -39,6 +38,7 @@ import {defineComponent} from "vue";
 import {ItemType} from "~/pages/datastore/[ds_id]/item/type";
 import {definePageMeta} from "#imports";
 import auth from "~/middleware/auth";
+import {itemService} from "~/services";
 
 definePageMeta({
   middleware: auth

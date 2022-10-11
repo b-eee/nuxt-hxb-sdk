@@ -5,7 +5,7 @@
         class="card-header"
         style="display: flex; justify-content: space-between"
       >
-        <span class="tableTitle">Application in workspace</span>
+        <span class="tableTitle">Workspace</span>
         <el-button type="primary" @click="visible = true">Create Workspace</el-button>
       </div>
     </template>
@@ -26,6 +26,7 @@
             :value="ws.workspace_id"
           />
         </el-select>
+<!--        <nuxt-link class="ml-3" :to="`/workspace/${curWsId}`">Go to workspace</nuxt-link>-->
       </div>
       <div>
         <el-table
@@ -55,7 +56,7 @@
               >
                 <el-col :span="5">
                   <nuxt-link
-                    :to="`${urParse}/project/${scope.row.application_id}/datastore/${ds.datastore_id}`"
+                    :to="`${urParse}/workspace/${this.curWsId}/project/${scope.row.application_id}/datastore/${ds.datastore_id}`"
                   >
                     {{ ds.name }}
                   </nuxt-link>

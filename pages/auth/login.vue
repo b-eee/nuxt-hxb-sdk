@@ -6,6 +6,7 @@
       status-icon
       :rules="rules"
       label-width="120px"
+      label-position="top"
       title="Hexabase"
       class="login-form"
       size="large"
@@ -23,7 +24,15 @@
           margin-bottom: 20px;
         "
       >
-        <span> Hexabase </span>
+<!--        <span> Hexabase </span>-->
+      <div style="
+        height: 38px;
+        width: 200px;
+        background-image: url('https://hxb-wp-prod.s3.ap-northeast-1.amazonaws.com/wp-content/uploads/2022/03/18170050/logo2022-bk.svg');
+        background-size: contain;
+        background-repeat: no-repeat;
+        ">
+      </div>
       </el-space>
       <el-form-item label="Email" prop="email">
         <el-input
@@ -46,11 +55,11 @@
         <el-button
           key="submit"
           htmlType="submit"
-          style="background-color: mediumseagreen; color: #fff"
+          style="width: 100%; background-color: mediumseagreen; color: #fff"
           @click.prevent="onSubmit(ruleForm)"
           >Login</el-button
         >
-        <el-button style="background-color: mediumseagreen; color: #fff"> Register </el-button>
+<!--        <el-button style="background-color: mediumseagreen; color: #fff"> Register </el-button>-->
       </el-form-item>
     </el-form>
   </div>

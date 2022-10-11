@@ -39,12 +39,12 @@ export default {
   setup(){
     const router = useRouter()
 
-    router.beforeEach((to, from) => {
-      const {isAuthenticated} = useUser().userInfo
-      if (to.path !== '/auth/login' && !isAuthenticated) {
-        return '/auth/login'
-      }
-    })
+    // router.beforeEach((to, from) => {
+    //   const {isAuthenticated} = useUser().userInfo
+    //   if (to.path !== '/auth/login' && !isAuthenticated) {
+    //     return '/auth/login'
+    //   }
+    // })
   }
 };
 </script>

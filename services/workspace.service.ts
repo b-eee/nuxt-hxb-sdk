@@ -1,8 +1,6 @@
-import {createPinia} from "pinia";
 import {QueryTaskList} from "@hexabase/hexabase-js/src/lib/types/workspace/input";
 import {createClient, HexabaseClient} from "@hexabase/hexabase-js";
 import {useRuntimeConfig} from "nuxt/app";
-createPinia()
 export const workspaceService = {
     getWorkspaces,
     setWorkspace,

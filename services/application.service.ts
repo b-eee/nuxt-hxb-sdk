@@ -3,7 +3,7 @@ import {useRuntimeConfig} from "nuxt/app";
 export const appService = {
     getAppAndDs,
     createApp,
-    getApplication
+    // getApplication
 };
 async function initHxbClient () {
     const token = JSON.parse(localStorage.getItem("user")!).token
@@ -27,8 +27,8 @@ async function createApp(createProjectParams: any) {
 }
 
 //get application
-async function getApplication(projectId: string) {
-    const hexabase = await initHxbClient()
-    const {project, error} = await hexabase.applications.get(projectId)
-    return project
-}
+// async function getApplication(projectId: string) {
+//     const hexabase = await initHxbClient()
+//     const {project, error} = await hexabase.applications.get(projectId)
+//     return project
+// }
