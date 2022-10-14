@@ -108,10 +108,6 @@ export default defineComponent({
       if (value === "") {
         callback(new Error("Please input the password"));
       } else {
-        // if (ruleForm.password !== "") {
-        //   if (!ruleFormRef.value) return;
-        //   ruleFormRef.value.validateField("password", () => null);
-        // }
         callback();
       }
     };
@@ -161,12 +157,11 @@ export default defineComponent({
         ElLoading.service();
         console.log('go there')
         const token = await userService.login(
-          this.baseUrl,
           loginParams.email,
           loginParams.password
         );
-        // token && await useHexabaseClient().updateHxbClient(token)
         token && useUser().updateAuth(token);
+        console.log(token)
         this.$router.push("/workspace");
       } catch {
         alertService.error("Login fail, please try again", {});

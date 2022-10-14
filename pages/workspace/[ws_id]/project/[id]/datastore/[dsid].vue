@@ -9,7 +9,7 @@
         <el-table-column prop="id" label="Display id">
           <template #default="scope">
             <el-space direction="vertical" >
-              <nuxt-link :href="`${dsid}/item/${scope.row.i_id}`">
+              <nuxt-link :href="`${dsid}/datastore_item/${scope.row.i_id}`">
 <!--                ${scope.row.i_id}-->
                 {{ scope.row.title ? scope.row.title : scope.row.i_id }}
               </nuxt-link>

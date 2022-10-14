@@ -25,14 +25,14 @@
       <el-icon><icon-menu /></el-icon>
       <template #title>Workspaces</template>
     </el-menu-item>
-<!--    <el-menu-item index="3" @click="handleNavigate('datastore')">-->
+<!--    <el-menu-datastore_item index="3" @click="handleNavigate('datastore')">-->
 <!--      <el-icon><coin /></el-icon>-->
 <!--      <template #title>DataStores</template>-->
-<!--    </el-menu-item>-->
-<!--    <el-menu-item index="4" @click="handleNavigate('/datastore/:ds_id/item')">-->
+<!--    </el-menu-datastore_item>-->
+<!--    <el-menu-datastore_item index="4" @click="handleNavigate('/datastore/:ds_id/datastore_item')">-->
 <!--      <el-icon><document /></el-icon>-->
 <!--      <template #title>Items</template>-->
-<!--    </el-menu-item>-->
+<!--    </el-menu-datastore_item>-->
   </el-menu>
 </template>
 

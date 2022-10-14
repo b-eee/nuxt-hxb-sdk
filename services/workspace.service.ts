@@ -22,7 +22,6 @@ async function initHxbClient () {
 // get all workspaces
 async function getWorkspaces() {
     const hexabase = await initHxbClient()
-    console.log(hexabase)
     const {workspaces, error} = await hexabase.workspaces.get()
     return workspaces
 }

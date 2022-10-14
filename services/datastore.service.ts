@@ -2,7 +2,8 @@ import {useRuntimeConfig} from "#app";
 import {createClient} from "@hexabase/hexabase-js";
 
 export const datastoreService = {
-    getFields
+    getFields,
+    getActions
 }
 
 async function initHxbClient () {
@@ -11,9 +12,15 @@ async function initHxbClient () {
     return hexabase
 }
 
-async function getFields(projectId: string, datastoreId: string) {
+async function getFields(datastoreId: string, projectId: string) {
     const hexabase = await initHxbClient()
-    console.log(hexabase)
-    const {dsField, error} = await hexabase.datastores.getFields(projectId, datastoreId)
-    return dsField
+    const {dsFields, error} = await hexabase.datastores.getFields(datastoreId, projectId)
+    return dsFields
 }
+
+async function getActions(datastoreId: string) {
+    const hexabase = await initHxbClient()
+    const {dsActions, error} = await hexabase.datastores.getActions(datastoreId)
+    return dsActions
+}
+

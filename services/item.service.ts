@@ -1,5 +1,6 @@
 // import { BehaviorSubject } from 'rxjs';
 import {
+    CreateNewItemPl,
     DeleteItemReq,
     GetItemDetailPl,
     GetItemsPl,
@@ -11,13 +12,13 @@ import {useRuntimeConfig} from "nuxt/app";
 
 export const itemService = {
     getItems,
-    // getItemDetail,
-    // getHistories,
-    // createItemId,
-    // getItemRelated,
-    // createItem,
-    // deleteItem,
-    // updateItem,
+    getItemDetail,
+    getHistories,
+    createItemId,
+    getItemRelated,
+    createItem,
+    deleteItem,
+    updateItem,
     // executeItem
 };
 
@@ -28,14 +29,14 @@ async function initHxbClient () {
     return hexabase
 }
 
-//get item
+//get datastore_item
 async function getItems( projectId: string, datastoreId: string, getItemsParameters: GetItemsPl) {
     const hexabase = await initHxbClient()
     const {dsItems, error} = await hexabase.items.get(getItemsParameters, datastoreId, projectId)
     return dsItems
 }
 
-// get detail item
+// get detail datastore_item
 async function getItemDetail( datastoreId: string, itemId: string, projectId: string, itemDetailParams: GetItemDetailPl) {
     const hexabase = await initHxbClient()
     const {itemDetails, error} = await hexabase.items.getItemDetail(datastoreId, itemId, projectId, itemDetailParams)
@@ -49,35 +50,35 @@ async function getHistories( projectId: string, datastoreId: string, historyPara
     return itemHistories
 }
 
-//create item id
+//create datastore_item id
 async function createItemId(datastoreId: string) {
     const hexabase = await initHxbClient()
     const {item_id, error} = await hexabase.items.createItemId(datastoreId)
     return item_id
 }
 
-//create item
-async function createItem( projectId: string, datastoreId: string, newItemPl: string) {
+//create datastore_item
+async function createItem( projectId: string, datastoreId: string, newItemPl: CreateNewItemPl) {
     const hexabase = await initHxbClient()
-    const {itemHistories, error} = await hexabase.items.getHistories(projectId, datastoreId, newItemPl)
-    return itemHistories
+    const {itemNew, error} = await hexabase.items.create(projectId, datastoreId, newItemPl)
+    return itemNew
 }
 
-//get item related
+//get datastore_item related
 async function getItemRelated( datastoreId: string, itemId: string, linkedDatastoreId: string) {
     const hexabase = await initHxbClient()
     const {itemLinked, error} = await hexabase.items.getItemRelated(datastoreId, itemId, linkedDatastoreId)
     return itemLinked
 }
 
-//delete item
+//delete datastore_item
 async function deleteItem( projectId: string, datastoreId: string, itemId: string, deleteItemReq: DeleteItemReq) {
     const hexabase = await initHxbClient()
     const {data, error} = await hexabase.items.delete(projectId, datastoreId, itemId, deleteItemReq)
     return data
 }
 
-//update item
+//update datastore_item
 async function updateItem( projectId: string, datastoreId: string, itemId: string, itemActionParameters: ItemActionParameters) {
     const hexabase = await initHxbClient()
     const {data, error} = await hexabase.items.update(projectId, datastoreId, itemId, itemActionParameters)

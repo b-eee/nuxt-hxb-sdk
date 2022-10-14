@@ -51,7 +51,6 @@ export default {
   },
   data(){
     const {isAuthenticated} = useUser().userInfo
-    console.log(useUser().userInfo)
     const user = JSON.parse(localStorage.getItem("user"))
     return {
       isAuthenticated,
