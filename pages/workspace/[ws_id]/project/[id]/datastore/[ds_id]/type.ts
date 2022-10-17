@@ -74,10 +74,19 @@ interface ItemType {
     w_id: string,
 }
 
+interface ItemFieldType {
+    title: string,
+    data_type: string,
+    field_id: string,
+    display_id: string
+    item_id?: string
+}
+
 export {
     SearchConditionType,
     SortFieldType,
     GetItemsPlType,
     DsItemType,
-    ItemType
+    ItemType,
+    ItemFieldType
 }

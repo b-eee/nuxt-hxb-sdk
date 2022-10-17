@@ -6,7 +6,9 @@
           style="display: flex; justify-content: space-between"
       >
         <span class="tableTitle">Item</span>
-        <el-button type="primary" @click="visible = true">Create Item</el-button>
+        <span>
+          <el-button type="primary" @click="visible = true">Create Item</el-button>
+        </span>
       </div>
     </template>
     <el-row :gutter="12">
@@ -20,9 +22,35 @@
         >
           <el-table-column v-for="field in itemFields" :key="field.field_id" :prop="field.display_id" :label="field.display_id">
             <template #default="scope">
-              <p v-if="field.data_type === 'dateTime'">{{ moment(scope.row[field.field_id]) }}</p>
-              <p v-if="field.data_type === 'text'">{{ scope.row[field.field_id] }}</p>
-              <p v-if="field.data_type === 'status'">{{ scope.row[field.field_id] }}</p>
+              <p v-if="field.data_type === 'datetime'">
+                {{ dateFormat(scope.row[field.field_id]) }}
+              </p>
+<!--              <p v-if="field.data_type === 'text'">{{ scope.row[field.field_id] }}</p>-->
+<!--              <p v-if="field.data_type === 'status'">{{ scope.row[field.field_id] }}</p>-->
+              <p v-else>{{ scope.row[field.field_id] }}</p>
+            </template>
+          </el-table-column>
+          <el-table-column>
+            <template #default="scope">
+              <el-space :size="12">
+                <el-button type="outlined">
+                  <el-icon><Edit /></el-icon>
+                </el-button>
+                <el-popover trigger="click" width="fit-content">
+                  <p>Are you sure to delete this?</p>
+                  <el-space style="width: 100%">
+                    <el-button type="warning" @click.stop="() => deleteItem(scope.row)"
+                    >Confirm</el-button
+                    >
+                  </el-space>
+                  <template #reference>
+                    <el-button type="outlined">
+                      <el-icon><Delete /></el-icon>
+                    </el-button>
+                  </template>
+                </el-popover>
+
+              </el-space>
             </template>
           </el-table-column>
         </el-table>
@@ -51,27 +79,29 @@
       width="60%"
       @close="handleCloseModal"
   >
-    <el-form :model="createItemParams" class="demo-form-inline">
-        <template v-for="(param, index) in createItemParams" :key="index">
-          <div style="display: flex">
-            <div style="flex-grow: 1; margin-right: 20px">
-              <el-form-item :label="`param ${index + 1}`">
-                <el-input v-model="createItemParams[index][`param${index}`]" placeholder="enter param content" />
-              </el-form-item>
-            </div>
-            <el-form-item>
-              <el-button @click="() => removeItemCreateParam(index)">
-                <el-icon><Remove /></el-icon>
-              </el-button>
+    <el-form :model="createItemParams" class="demo-form-inline" label-position="right" label-width="100px">
+      <template v-for="(field, index) in itemFields" :key="field.field_id">
+        <div style="display: flex">
+          <div style="flex-grow: 1; margin-right: 20px">
+            <el-form-item :label="field.title">
+              <el-input
+                  v-if="field.data_type !== 'datetime'"
+                  v-model="createItemParams[field.field_id]" :placeholder="`Please input ${field.title.toLowerCase()}`"
+                  :autofocus="index === 0"
+                  clearable />
+              <el-date-picker
+                  v-if="field.data_type === 'datetime'"
+                  v-model="createItemParams[field.field_id]"
+                  type="datetime"
+                  :placeholder="`Please input ${field.title.toLowerCase()}`"
+                  format="YYYY/MM/DD HH:mm:ss"
+              />
             </el-form-item>
           </div>
-        </template>
-        <el-form-item>
-          <el-button type="primary" @click="addParamRow">
-            Add new param
-          </el-button>
-        </el-form-item>
-      </el-form>
+
+        </div>
+      </template>
+    </el-form>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="handleCloseModal">Cancel</el-button>
@@ -103,18 +133,19 @@ import {
   ElIcon,
   ElForm,
   ElFormItem,
+  ElDatePicker,
+  ElPopover
 } from "element-plus";
 import moment from "moment";
 import {useRoute, useRuntimeConfig} from "nuxt/app";
-import {defineComponent, ref} from "vue";
-import {GetItemsPlType} from "./type";
-import {TableColumnCtx} from "element-plus/es/components/table/src/table-column/defaults";
+import {defineComponent, ref, unref} from "vue";
 import {itemService} from "~/services";
 import {DsItems} from "@hexabase/hexabase-js/dist/lib/types/item";
 import {datastoreService} from "~/services/datastore.service";
 import {DsAction} from "@hexabase/hexabase-js/src/lib/types/datastore/response";
-import {CirclePlus, Remove} from "@element-plus/icons-vue";
+import {Delete, Edit} from "@element-plus/icons-vue";
 import {DeleteItemReq} from "@hexabase/hexabase-js/src/lib/types/item/input";
+import {GetItemsPlType, ItemFieldType} from "./type";
 
 export default defineComponent({
   components: {
@@ -133,18 +164,17 @@ export default defineComponent({
     ElDescriptions,
     ElDescriptionsItem,
     ElIcon,
-    CirclePlus,
-    Remove,
     ElForm,
     ElFormItem,
+    ElDatePicker,
+    Delete,
+    Edit,
+    ElPopover
   },
   name: "Workspace",
   layout: "default",
   setup() {
     const {i_id} = useRoute().params
-    const dateFormat = (row: any, column: TableColumnCtx<any>) => {
-      return moment(row.created_at).format('YYYY-MM-DD hh:mm:ss')
-    }
     const urParse = window.location.origin.toString()
     const tableLoading = ElLoading.service({
       target: 'table'
@@ -159,9 +189,8 @@ export default defineComponent({
     return {
       i_id,
       urParse,
-      dateFormat,
       tableLoading,
-      successNotif
+      successNotif,
     };
   },
   data() {
@@ -176,7 +205,6 @@ export default defineComponent({
       per_page: 20,
     }
     return {
-      createItemParams: [{}] as any[],
       visible: false,
       getItemsParameters,
       ds_id,
@@ -184,25 +212,20 @@ export default defineComponent({
       ws_id,
       url,
       dsItems: {} as  DsItems | undefined,
-      itemFields: [] as any[],
-      currentItemDetail: {}
+      itemFields: [] as ItemFieldType[],
+      currentItemDetail: {},
+      createItemParams: {} as any
     };
   },
   computed: {
-
   },
   methods: {
-    removeItemCreateParam(index: number){
-      console.log((Object.values(this.createItemParams[index]))[0])
-      console.log(index)
-      console.log(this.createItemParams)
-      this.createItemParams.splice(index, 1)
-      console.log(this.createItemParams)
+    dateFormat(dateString: string){
+      return moment(dateString).format('YYYY-MM-DD hh:mm:ss')
     },
-    addParamRow(){
-      const curLen = this.createItemParams.length
-      const newParamLabel = `param${curLen}`
-      this.createItemParams.push({})
+
+    async editItem(){
+      console.log('的突袭')
     },
     async createItem() {
       const tableLoading = ElLoading.service({
@@ -210,12 +233,7 @@ export default defineComponent({
       })
       const dsActions: DsAction[] = await datastoreService.getActions(this.ds_id as string)
       const actionIdCreate = dsActions.find(action => action?.operation?.trim().toLowerCase() === 'new')?.action_id
-        let result = {}
-        // { 'param1': value }
-        // [{}, {}]
-        this.createItemParams.forEach((item, index) => {
-          result = Object.assign(result, item)
-        })
+
       const newItemPl = {
         action_id: actionIdCreate,
         use_display_id: true,
@@ -223,17 +241,12 @@ export default defineComponent({
         ensure_transaction: false,
         exec_children_post_procs: true,
         access_key_updates: {
-        overwrite: true,
-        ignore_action_settings: true
+          overwrite: true,
+          ignore_action_settings: true
         },
-        item: result
+        item: this.createItemParams
       };
-
-      console.log("actionIdCreate", actionIdCreate)
-
       const newItem = await itemService.createItem(this.id as string, this.ds_id as string, newItemPl);
-
-      console.log("newItemmm", newItem)
       this.visible = false;
       if (newItem) {
         this.successNotif()
@@ -241,23 +254,19 @@ export default defineComponent({
       }
       tableLoading.close()
     },
-    async deleteItem() {
+    async deleteItem(row: any) {
       const tableLoading = ElLoading.service({
         target: 'table'
       })
       const dsActions: DsAction[] = await datastoreService.getActions(this.ds_id as string)
       const actionIdDelete = dsActions.find(action => action?.operation?.trim().toLowerCase() === 'delete')?.action_id
-        let result = {}
-        this.createItemParams.forEach((item, index) => {
-          result = Object.assign(result, item)
-        })
       if (actionIdDelete){
         const deleteItemReq: DeleteItemReq = {
           a_id: actionIdDelete,
           use_display_id: true,
           delete_linked_items: true,
         };
-      await itemService.deleteItem(this.id as string, this.ds_id as string, this.i_id as string, deleteItemReq);
+        await itemService.deleteItem(this.id as string, this.ds_id as string, row.i_id, deleteItemReq);
       }
 
       this.visible = false;
@@ -265,16 +274,21 @@ export default defineComponent({
       await this.getItems()
       tableLoading.close()
     },
+
     handleCloseModal(){
       this.visible = false,
-      this.createItemParams = [{
-        param1: ''
-      }]
+          this.createItemParams = []
     },
+    //row click
+    handleCLick(row: any, column: any, event: any){
+      this.currentItemDetail = {...row}
+    },
+
+    //adjust label: capitalize first character, remove underscore
     getLabel(label: string){
       const idLabelArr = this.itemFields.map(i => i.field_id)
       if(idLabelArr.includes(label)){
-        const altLabel = this.itemFields.find(i => i.field_id === label).display_id
+        const altLabel = this.itemFields.find(i => i.field_id === label)?.display_id || ""
         return altLabel.charAt(0).toUpperCase() + altLabel.slice(1);
       }
       else {
@@ -283,10 +297,6 @@ export default defineComponent({
         return adjustLabel
       }
     },
-    handleCLick(row: any, column: any, event: any){
-      console.log(row)
-      this.currentItemDetail = {...row}
-    },
     async getItems() {
       this.dsItems = await itemService.getItems(
           this.id as string,
@@ -294,16 +304,15 @@ export default defineComponent({
           this.getItemsParameters
       )
       if (this.dsItems){
-        await this.getFields()
         this.currentItemDetail = this.dsItems.items[0]
       }
       this.tableLoading.close()
     },
+    //get need-to-show column title and input field
     async getFields(){
       const fieldInfo = await datastoreService.getFields(this.ds_id as string, this.id as string)
-      console.log(fieldInfo)
+      console.log("fieldInfo", fieldInfo)
       const idArray = Object.keys(fieldInfo.fields)
-
       idArray.map(item =>
           this.itemFields.push({
             title: fieldInfo.fields[item].name,
@@ -312,10 +321,17 @@ export default defineComponent({
             display_id: fieldInfo.fields[item].display_id,
           })
       )
+      console.log("itemFields", this.itemFields)
+      this.itemFields.forEach(i => {
+        this.createItemParams[i.field_id] = ""
+      })
+
+      console.log("createItemParams", this.createItemParams)
     },
   },
   mounted() {
     this.getItems()
+    this.getFields()
   },
 });
 </script>
