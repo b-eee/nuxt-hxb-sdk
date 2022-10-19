@@ -20,7 +20,7 @@
             @row-click="(row, column, event) => handleCLick(row, column, event)"
             :highlight-current-row="true"
         >
-          <el-table-column v-for="field in itemFields" :key="field.field_id" :prop="field.display_id" :label="field.display_id">
+          <el-table-column v-for="field in itemFields" :key="field.field_id" :prop="field.display_id" :label="getLabel(field.title)">
             <template #default="scope">
               <p v-if="field.data_type === 'datetime'">
                 {{ dateFormat(scope.row[field.field_id]) }}
@@ -83,7 +83,7 @@
       <template v-for="(field, index) in itemFields" :key="field.field_id">
         <div style="display: flex">
           <div style="flex-grow: 1; margin-right: 20px">
-            <el-form-item :label="field.title">
+            <el-form-item :label="getLabel(field.title)">
               <el-input
                   v-if="field.data_type !== 'datetime'"
                   v-model="createItemParams[field.field_id]" :placeholder="`Please input ${field.title.toLowerCase()}`"
@@ -134,7 +134,8 @@ import {
   ElForm,
   ElFormItem,
   ElDatePicker,
-  ElPopover
+  ElPopover,
+  ElTableV2
 } from "element-plus";
 import moment from "moment";
 import {useRoute, useRuntimeConfig} from "nuxt/app";
@@ -143,7 +144,7 @@ import {itemService} from "~/services";
 import {DsItems} from "@hexabase/hexabase-js/dist/lib/types/item";
 import {datastoreService} from "~/services/datastore.service";
 import {DsAction} from "@hexabase/hexabase-js/src/lib/types/datastore/response";
-import {Delete, Edit} from "@element-plus/icons-vue";
+import {Delete, Edit, Loading} from "@element-plus/icons-vue";
 import {DeleteItemReq} from "@hexabase/hexabase-js/src/lib/types/item/input";
 import {GetItemsPlType, ItemFieldType} from "./type";
 
@@ -169,7 +170,8 @@ export default defineComponent({
     ElDatePicker,
     Delete,
     Edit,
-    ElPopover
+    ElPopover,
+      ElTableV2
   },
   name: "Workspace",
   layout: "default",
@@ -288,7 +290,7 @@ export default defineComponent({
     getLabel(label: string){
       const idLabelArr = this.itemFields.map(i => i.field_id)
       if(idLabelArr.includes(label)){
-        const altLabel = this.itemFields.find(i => i.field_id === label)?.display_id || ""
+        const altLabel = this.itemFields.find(i => i.field_id === label)?.title || ""
         return altLabel.charAt(0).toUpperCase() + altLabel.slice(1);
       }
       else {
