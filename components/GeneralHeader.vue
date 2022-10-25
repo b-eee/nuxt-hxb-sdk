@@ -22,7 +22,7 @@
         <el-button @click="handleLogout">
           Log out
         </el-button> <el-button style="background-color: mediumseagreen">
-          <nuxt-link to="/auth/login" style="background-color: mediumseagreen; color: #fff">Log in</nuxt-link>
+          <nuxt-link to="/auth/login" style="background-color: mediumseagreen; color: #fff" @click="() => console.log('aaaaa')">Log in</nuxt-link>
         </el-button>
 <!--        </div>-->
       </el-space>
@@ -60,7 +60,6 @@ export default {
   methods: {
     async handleLogout(){
       await userService.logout()
-      await useRouter().push('/auth/login')
     },
   }
 };

@@ -1,6 +1,7 @@
-import {createClient} from "@hexabase/hexabase-js";
+import { createClient } from "@hexabase/hexabase-js";
 import { useUser } from "~/store/user";
-import {useRuntimeConfig} from "nuxt/app";
+import { useRuntimeConfig } from "nuxt/app";
+import { useRouter } from "nuxt/app";
 
 async function login(email: string, password: string) {
   let user = {} as any;
@@ -11,7 +12,7 @@ async function login(email: string, password: string) {
     password,
   });
   const { token, error } = await hexabase.auth.login({ email, password });
-  console.log(token)
+  console.log(token);
   if (token && !error) {
     const { userInfo } = await hexabase.users.get(token);
     if (userInfo && !error) {
@@ -24,12 +25,14 @@ async function login(email: string, password: string) {
 }
 
 async function logout() {
-  const token = JSON.parse(localStorage.getItem("user")!).token
-  const url = useRuntimeConfig().public.baseUrl
-  const hexabase = await createClient({url, token})
-  await hexabase.auth.logout(token)
+  const token = JSON.parse(localStorage.getItem("user")!).token;
+  const url = useRuntimeConfig().public.baseUrl;
+  const hexabase = await createClient({ url, token });
+  await hexabase.auth.logout(token);
   localStorage.removeItem("user");
   useUser().removeAuth();
+  const router = useRouter();
+  router.push("/auth/login");
 }
 
 function register() {

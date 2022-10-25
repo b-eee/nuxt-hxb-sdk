@@ -2,28 +2,26 @@
   <div class="custom-layout">
     <el-container direction="vertical">
       <general-header />
-        <el-container>
-          <el-main style="width: 100%; max-width: 100%; height: calc(100vh - 64px); background-image: url('https://www.hexabase.com/wp-content/uploads/2022/03/bg-2022main3.png')">
-            <slot />
-          </el-main>
-        </el-container>
+      <el-container>
+        <el-main
+          style="width: 100%; max-width: 100%; height: calc(100vh - 64px)"
+        >
+          <slot />
+        </el-main>
+      </el-container>
     </el-container>
   </div>
 </template>
 
 <script>
 import GeneralHeader from "../components/GeneralHeader";
-import {
-  ElAside,
-  ElContainer,
-  ElMain,
-} from 'element-plus'
+import { ElAside, ElContainer, ElMain } from "element-plus";
 export default {
   components: {
     ElAside,
     ElContainer,
     ElMain,
-    GeneralHeader
+    GeneralHeader,
   },
 };
 </script>
@@ -62,5 +60,4 @@ article {
   min-height: 400px;
   height: 100%;
 }
-
 </style>

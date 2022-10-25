@@ -6,7 +6,7 @@
           <el-aside>
             <main-menu />
           </el-aside>
-          <el-container>
+          <el-container style="height: calc(100vh - 64px)">
             <el-main style="width: 100%; max-width: 100%">
               <slot />
             </el-main>
