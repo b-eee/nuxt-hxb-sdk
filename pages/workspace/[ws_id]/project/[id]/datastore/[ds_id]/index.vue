@@ -444,6 +444,9 @@ export default defineComponent({
       }
     },
     async updateItem() {
+      const tableLoading = ElLoading.service({
+        target: "updateModal",
+      });
       const updateActionId =
         this.currentItemDetail.item_actions.UpdateItem.a_id;
       const itemActionParameters = {
@@ -469,6 +472,7 @@ export default defineComponent({
       } finally {
         this.visibleUpdate = false;
         this.viewDetail = false
+        tableLoading.close()
       }
     },
     async getUpdateItemChanges(field: any, value: any) {
@@ -540,16 +544,19 @@ export default defineComponent({
       }
     },
     async handleChangeFile(e: any, field: any) {
+      const tableLoading = ElLoading.service({
+        target: "updateModal",
+      });
       const file = e.target.files[0];
       const filename = file.name;
       const extension = file.type;
-      const res = await toBase64(file);
+      const toBase64File = await toBase64(file);
       // console.log(res)
       const payload = {
         filename,
         contentTypeFile: extension,
         filepath: `${this.ds_id}/${this.curItemId}/${field.field_id}/${filename}`,
-        content: "",
+        content: toBase64File,
         d_id: this.ds_id,
         p_id: this.id,
         field_id: field.field_id,
@@ -560,6 +567,7 @@ export default defineComponent({
       const newFileId = createFileRes.file_id;
       this.newFileId = newFileId;
       await this.getUpdateItemChanges(field, newFileId);
+      tableLoading.close()
     },
     dateFormat(dateString: string) {
       return moment(dateString).format("YYYY-MM-DD hh:mm:ss");
@@ -698,24 +706,6 @@ export default defineComponent({
       );
       this.tableLoading.close();
     },
-
-    // async createItemFile({fileName, contentTypeFile, filepath, content, field_id, display_order}) {
-    //   const createFilePl: ItemFileAttachmentPl = {
-    //     filename,
-    //     contentTypeFile,
-    //     filepath,
-    //     content,
-    //     d_id,
-    //     p_id,
-    //     field_id,
-    //     item_id,
-    //     display_order
-    //   }
-    //   const res = await storageService.createFile(createFilePl)
-    //   const newFileId = res.file_id;
-    //   await storageService.getFile(newFileId)
-    //
-    // },
 
     async downloadFile(file: any) {
       console.log("fileField", file);
