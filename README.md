@@ -273,6 +273,12 @@ Click to any item to view the detail. The initial item detail automatically take
 
 ![view item detail](assets/img/screenshot-item-viewDetail.png)
 
+![create item](assets/img/screenshot-itemViewMedia.png)
+
+[in progress]
+
+Download media of item
+
 You can delete an item
 
 ```tsx
@@ -313,3 +319,25 @@ async function createItem(
   return itemNew;
 }
 ```
+to edit item
+![create item](assets/img/screenshot-updateItem.png)
+```tsx
+async function updateItem(
+  projectId: string,
+  datastoreId: string,
+  itemId: string,
+  itemActionParameters: ItemActionParameters
+) {
+  const hexabase = await initHxbClient();
+  const { data, error } = await hexabase.items.update(
+    projectId,
+    datastoreId,
+    itemId,
+    itemActionParameters
+  );
+  return data;
+}
+```
+
+
+
