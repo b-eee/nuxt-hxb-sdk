@@ -19,7 +19,7 @@
           ref="table"
           :data="dsItems?.items"
           style="width: 100%"
-          @row-click="(row, column, event) => handleCLick(row)"
+          @row-click="(row) => handleCLick(row)"
           :highlight-current-row="true"
         >
           <el-table-column
@@ -126,13 +126,6 @@
                     <el-button type="link" @click="downloadFile(file)">{{
                       file.filename
                     }}</el-button>
-
-                    <img
-                      v-if="curImg !== ''"
-                      :src="curImg"
-                      width="100px"
-                      height="100px"
-                    />
                   </template>
                 </div>
               </template>
@@ -235,8 +228,8 @@
                       type="link"
                       style="
                         margin-left: 0;
-                        border-top-right-radius: 0px;
-                        border-bottom-right-radius: 0px;
+                        border-top-right-radius: 0;
+                        border-bottom-right-radius: 0;
                         border-right: none;
                       "
                     >
@@ -246,8 +239,8 @@
                       @click="deleteFile(file)"
                       style="
                         margin-left: 0;
-                        border-top-left-radius: 0px;
-                        border-bottom-left-radius: 0px;
+                        border-top-left-radius: 0;
+                        border-bottom-left-radius: 0;
                         /* border-left: none; */
                       "
                     >
@@ -306,22 +299,21 @@ import {
 } from "element-plus";
 import moment from "moment";
 import { useRoute, useRuntimeConfig } from "nuxt/app";
-import { defineComponent, ref, unref } from "vue";
+import { defineComponent, ref } from "vue";
 import { itemService } from "~/services";
 import { DsItems } from "@hexabase/hexabase-js/dist/lib/types/item";
 import { datastoreService } from "~/services/datastore.service";
 import { DsAction } from "@hexabase/hexabase-js/src/lib/types/datastore/response";
-import { Delete, Edit, Loading, Close } from "@element-plus/icons-vue";
+import { Delete, Edit, Close } from "@element-plus/icons-vue";
 import {
   DeleteItemReq,
   GetItemDetailPl,
 } from "@hexabase/hexabase-js/src/lib/types/item/input";
-import { GetItemsPlType, ItemFieldLayout, ItemFieldType } from "./type";
+import { GetItemsPlType, ItemFieldType } from "./type";
 import { ItemDetail } from "@hexabase/hexabase-js/src/lib/types/item/response";
 import { storageService } from "~/services/storage.service";
 import { toBase64 } from "~/services/helper";
 import { ItemFileAttachmentPl } from "@hexabase/hexabase-js/src/lib/types/storage/input";
-import { AnyColumn } from "element-plus/es/components/table-v2/src/common";
 
 export default defineComponent({
   components: {
@@ -367,7 +359,6 @@ export default defineComponent({
     const leaveUpdateWarning = () => {
       ElMessageBox.alert("Those updates will be removed", "Wait!", {
         // if you want to disable its autofocus
-        // autofocus: false,
         confirmButtonText: "OK",
         callback: (action: Action) => {
           console.log("hi");
@@ -434,10 +425,7 @@ export default defineComponent({
       try {
         await storageService.deleteFile(fileId);
         this.successNotif("file deleted successfully");
-        const res = await this.fetchItemDetail();
-        if (res) {
-          this.currentItemDetail = res;
-        }
+        await this.fetchItemDetail();
       } catch (error) {
         console.log(error);
       }
@@ -475,15 +463,16 @@ export default defineComponent({
           this.curItemId,
           itemActionParameters
         );
-        console.log(data);
         this.successNotif("update successfully");
       } catch (error) {
         console.log(error);
       } finally {
         this.visibleUpdate = false;
+        this.viewDetail = false
       }
     },
     async getUpdateItemChanges(field: any, value: any) {
+      console.log(this.currentItemDetail)
       const keyArr = Object.keys(this.currentItemDetail.field_values);
       const keyFile = keyArr.find(
         (i) => this.currentItemDetail.field_values[i].dataType === "file"
@@ -511,7 +500,25 @@ export default defineComponent({
       if (fieldIdLayout && fieldId) {
         const tabindex = (fieldIdLayout.row + 1) * 10 + fieldIdLayout.col;
         let objectChange = {};
-        if (field.data_type !== "file" && fileIds) {
+        if (field.data_type === "file") {
+          objectChange = {
+            as_title: fieldId.as_title,
+            cols: fieldIdLayout.sizeX,
+            dataType: "file",
+            id: field.field_id,
+            idx,
+            rowHeight: "item.rowHeight",
+            rows: fieldIdLayout.sizeY,
+            status: false,
+            tabindex,
+            title: this.currentItemDetail.title,
+            unique: fieldId.unique,
+            x: fieldIdLayout.col,
+            y: fieldIdLayout.row,
+            post_file_ids: [...fileIds, value],
+            value: [...fileIds, value],
+          };
+        } else {
           objectChange = {
             as_title: fieldId.as_title,
             cols: fieldIdLayout.sizeX,
@@ -528,34 +535,16 @@ export default defineComponent({
             x: fieldIdLayout.col,
             y: fieldIdLayout.row,
           };
-        } else {
-          objectChange = {
-            as_title: fieldId.as_title,
-            cols: fieldIdLayout.sizeX,
-            dataType: "file",
-            id: field.field_id,
-            idx,
-            rowHeight: "item.rowHeight",
-            rows: fieldIdLayout.sizeY,
-            status: false,
-            tabindex,
-            title: this.currentItemDetail.title,
-            unique: fieldId.unique,
-            x: fieldIdLayout.col,
-            y: fieldIdLayout.row,
-            post_file_ids: [...fileIds],
-            value: [...fileIds],
-          };
         }
         this.updateItemChanges.push(objectChange);
       }
     },
     async handleChangeFile(e: any, field: any) {
-      console.log("field", field);
       const file = e.target.files[0];
       const filename = file.name;
       const extension = file.type;
       const res = await toBase64(file);
+      // console.log(res)
       const payload = {
         filename,
         contentTypeFile: extension,
@@ -643,7 +632,8 @@ export default defineComponent({
     },
 
     handleCloseModal() {
-      (this.visible = false), (this.createItemParams = []);
+      this.visible = false
+      this.createItemParams = []
     },
 
     async handleOpenUpdateModal(row: any) {
@@ -654,21 +644,22 @@ export default defineComponent({
       const tableLoading = ElLoading.service({
         target: "updateModal",
       });
-      const res = await this.fetchItemDetail();
-      if (res) {
-        this.currentItemDetail = res;
-      }
+      await this.fetchItemDetail()
       this.visibleUpdate = true;
       tableLoading.close();
     },
 
     async fetchItemDetail() {
-      return itemService.getItemDetail(
+      const res = await itemService.getItemDetail(
         this.ds_id as string,
         this.curItemId,
         this.id as string,
         this.getItemDetailParams
       );
+
+      if (res){
+        this.currentItemDetail = res
+      }
     },
 
     handleCloseModalUpdate() {
@@ -681,15 +672,7 @@ export default defineComponent({
       const tableLoading = ElLoading.service({
         target: "description",
       });
-      const res = await itemService.getItemDetail(
-        this.ds_id as string,
-        row.i_id,
-        this.id as string,
-        this.getItemDetailParams
-      );
-      if (res) {
-        this.currentItemDetail = res;
-      }
+      await this.fetchItemDetail()
       tableLoading.close();
     },
 
