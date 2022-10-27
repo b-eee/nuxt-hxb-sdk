@@ -443,9 +443,7 @@ export default defineComponent({
         await storageService.deleteFile(fileId);
         this.successNotif("file deleted successfully");
         this.errorMessage()
-        this.visibleUpdate = false
         await this.getUpdateItemChanges(field, "", file.file_id)
-        this.visibleUpdate = true
       } catch (error) {
         console.log(error);
       } finally {
