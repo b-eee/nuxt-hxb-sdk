@@ -141,6 +141,7 @@
     title="Create new item"
     width="60%"
     @close="handleCloseModal"
+    ref="createModal"
   >
     <el-form
       v-model="createItemParams"
@@ -185,6 +186,7 @@
     width="60%"
     @close="handleCloseModalUpdate"
     :before-close="warningCloseUpdateModal"
+    ref="updateModal"
   >
     <el-form
       class="demo-form-inline"
@@ -209,14 +211,14 @@
             <el-form-item
               :label="getLabel(field.title)"
               v-else
-              style="width: 100%"
+              style="width: 100%; display: flex; align-items: center"
             >
               <div
                 v-for="field in currentItemDetail.field_values"
                 :key="field.field_id"
               >
                 <span
-                  v-if="field.dataType === 'file'"
+                  v-if="field.dataType === 'file' && (field.value && field.value[0] && field.value[0].filename)"
                   style="margin-right: 5px"
                 >
                   <span
@@ -236,7 +238,7 @@
                       {{ file.filename }}
                     </el-button>
                     <el-button
-                      @click="deleteFile(file)"
+                      @click="deleteFile(field, file)"
                       style="
                         margin-left: 0;
                         border-top-left-radius: 0;
@@ -253,7 +255,6 @@
               <input
                 style="margin: 20px"
                 @change="(e) => handleChangeFile(e, field)"
-                :placeholder="`Please input ${field.title.toLowerCase()}`"
                 type="file"
               />
             </el-form-item>
@@ -296,6 +297,10 @@ import {
   ElTabPane,
   ElMessageBox,
   Action,
+  ElUpload,
+  UploadProps,
+  ElMessage,
+  UploadUserFile
 } from "element-plus";
 import moment from "moment";
 import { useRoute, useRuntimeConfig } from "nuxt/app";
@@ -304,7 +309,7 @@ import { itemService } from "~/services";
 import { DsItems } from "@hexabase/hexabase-js/dist/lib/types/item";
 import { datastoreService } from "~/services/datastore.service";
 import { DsAction } from "@hexabase/hexabase-js/src/lib/types/datastore/response";
-import { Delete, Edit, Close } from "@element-plus/icons-vue";
+import { Delete, Edit, Close, Upload } from "@element-plus/icons-vue";
 import {
   DeleteItemReq,
   GetItemDetailPl,
@@ -341,6 +346,8 @@ export default defineComponent({
     Close,
     ElTabs,
     ElTabPane,
+    Upload,
+    ElUpload,
   },
   name: "Item Detail",
   layout: "default",
@@ -365,7 +372,15 @@ export default defineComponent({
         },
       });
     };
+    const errorMessage = () => {
+      ElMessage({
+        showClose: true,
+        message: 'You have to update item after delete a file.',
+        type: 'warning',
+      })
+    }
     return {
+      errorMessage,
       leaveUpdateWarning,
       urParse,
       tableLoading,
@@ -419,18 +434,26 @@ export default defineComponent({
   },
   computed: {},
   methods: {
-    async deleteFile(file: any) {
-      console.log(file);
+    async deleteFile(field: any, file: any) {
+      const tableLoading = ElLoading.service({
+        target: "updateModal",
+      });
       const fileId = file.file_id;
       try {
         await storageService.deleteFile(fileId);
         this.successNotif("file deleted successfully");
-        await this.fetchItemDetail();
+        this.errorMessage()
+        this.visibleUpdate = false
+        await this.getUpdateItemChanges(field, "", file.file_id)
+        this.visibleUpdate = true
       } catch (error) {
         console.log(error);
+      } finally {
+        tableLoading.close()
       }
     },
     warningCloseUpdateModal(done: () => void) {
+      console.log(this.updateItemChanges[0])
       if (this.updateItemChanges[0]) {
         ElMessageBox.confirm("Those updates will be removed")
           .then(() => {
@@ -475,8 +498,7 @@ export default defineComponent({
         tableLoading.close()
       }
     },
-    async getUpdateItemChanges(field: any, value: any) {
-      console.log(this.currentItemDetail)
+    async getUpdateItemChanges(field: any, value: any, deletedFiled?: string) {
       const keyArr = Object.keys(this.currentItemDetail.field_values);
       const keyFile = keyArr.find(
         (i) => this.currentItemDetail.field_values[i].dataType === "file"
@@ -490,6 +512,9 @@ export default defineComponent({
             objectHasFile.value.map((i: any) => i.file_id)) ||
           [];
       }
+      if (deletedFiled && !value){
+        fileIds = fileIds.filter((f: any) => f.file_id !== deletedFiled)
+      }
 
       const fieldSettings = await datastoreService.getDetail(
         this.ds_id as string
@@ -501,12 +526,12 @@ export default defineComponent({
       const fieldId = this.itemFields.find(
         (f: any) => f.field_id === field.field_id
       );
-      if (fieldIdLayout && fieldId) {
+      if (fieldIdLayout && (fieldId || deletedFiled)) {
         const tabindex = (fieldIdLayout.row + 1) * 10 + fieldIdLayout.col;
         let objectChange = {};
         if (field.data_type === "file") {
           objectChange = {
-            as_title: fieldId.as_title,
+            as_title: fieldId?.as_title,
             cols: fieldIdLayout.sizeX,
             dataType: "file",
             id: field.field_id,
@@ -516,15 +541,15 @@ export default defineComponent({
             status: false,
             tabindex,
             title: this.currentItemDetail.title,
-            unique: fieldId.unique,
+            unique: fieldId?.unique,
             x: fieldIdLayout.col,
             y: fieldIdLayout.row,
-            post_file_ids: [...fileIds, value],
-            value: [...fileIds, value],
+            post_file_ids: value ? [...fileIds, value] : [...fileIds],
+            value: value ? [...fileIds, value] : [...fileIds],
           };
         } else {
           objectChange = {
-            as_title: fieldId.as_title,
+            as_title: fieldId?.as_title,
             cols: fieldIdLayout.sizeX,
             dataType: field.data_type,
             id: field.field_id,
@@ -534,7 +559,7 @@ export default defineComponent({
             status: false,
             tabindex,
             title: this.currentItemDetail.title,
-            unique: fieldId.unique,
+            unique: fieldId?.unique,
             value,
             x: fieldIdLayout.col,
             y: fieldIdLayout.row,
@@ -542,6 +567,7 @@ export default defineComponent({
         }
         this.updateItemChanges.push(objectChange);
       }
+      await this.fetchItemDetail()
     },
     async handleChangeFile(e: any, field: any) {
       const tableLoading = ElLoading.service({
@@ -551,7 +577,7 @@ export default defineComponent({
       const filename = file.name;
       const extension = file.type;
       const toBase64File = await toBase64(file);
-      // console.log(res)
+      console.log("tobase64", toBase64File)
       const payload = {
         filename,
         contentTypeFile: extension,
@@ -645,15 +671,15 @@ export default defineComponent({
     },
 
     async handleOpenUpdateModal(row: any) {
+      this.visibleUpdate = true;
+      const tableLoading = ElLoading.service({
+        target: "updateModal",
+      });
       this.curItemId = row.i_id;
       this.updateItemDetail = this.dsItems?.items.find(
         (i: any) => i.i_id === this.curItemId
       );
-      const tableLoading = ElLoading.service({
-        target: "updateModal",
-      });
       await this.fetchItemDetail()
-      this.visibleUpdate = true;
       tableLoading.close();
     },
 
@@ -749,5 +775,11 @@ export default defineComponent({
   font-weight: bold;
   font-size: 1.25rem;
   line-height: 2rem;
+}
+.custom-file-upload{
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
 }
 </style>

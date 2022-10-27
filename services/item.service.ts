@@ -6,6 +6,7 @@ import {
   GetItemsPl,
   ItemActionParameters,
 } from "@hexabase/hexabase-js/src/lib/types/item/input";
+import { Buffer } from 'buffer';
 import { GetHistoryPl } from "@hexabase/hexabase-js/dist/lib/types/item";
 import { createClient } from "@hexabase/hexabase-js";
 import { useRuntimeConfig } from "nuxt/app";
@@ -154,16 +155,10 @@ async function updateItem(
 }
 
 function download(data: any, fileName: string, contentType: string) {
-  console.log(data);
-  let a = document.createElement("a");
-  let file = new Blob([data], { type: "image/jpeg" });
-  // let file = `data:image-jpeg;base64],${data}`;
-  a.href = window.URL.createObjectURL(file);
-  // a.href = file;
-  a.download = fileName.split(".")[0] + ".jpg";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  let a = document.createElement("a"); //Create <a>
+  a.href = "data:image/png;base64," + data; //Image Base64 Goes here
+  a.download = "Image.png"; //File name Here
+  a.click(); //Downloaded file
 }
 
 //execute
