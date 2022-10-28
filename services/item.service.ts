@@ -20,7 +20,6 @@ export const itemService = {
   createItem,
   deleteItem,
   updateItem,
-  download,
   // executeItem
 };
 
@@ -152,13 +151,6 @@ async function updateItem(
     itemActionParameters
   );
   return data;
-}
-
-function download(data: any, fileName: string, contentType: string) {
-  let a = document.createElement("a"); //Create <a>
-  a.href = "data:image/png;base64," + data; //Image Base64 Goes here
-  a.download = "Image.png"; //File name Here
-  a.click(); //Downloaded file
 }
 
 //execute

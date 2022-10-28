@@ -98,6 +98,11 @@
                     :label="field?.field_name"
                     v-if="field.dataType !== 'file'"
                   >
+                    <p v-if="field?.field_name === 'Status'">
+                      <template>
+                        {{ (statusOptions.find(s => s.status_id === field.value))?.displayed_name  }}
+                      </template>
+                    </p>
                     <p v-if="field?.field_name === 'user_id'">
                       <template v-for="i in field.value">
                         {{ i.user_name }}
@@ -152,20 +157,40 @@
       <template v-for="(field, index) in itemFields" :key="field.field_id">
         <div style="display: flex">
           <div style="flex-grow: 1; margin-right: 20px">
-            <el-form-item :label="getLabel(field.title)">
-              <el-input
-                v-if="field.data_type !== 'datetime'"
-                v-model="createItemParams[field.field_id]"
-                :placeholder="`Please input ${field.title.toLowerCase()}`"
-                :autofocus="index === 0"
-                clearable
-              />
+            <el-form-item :label="getLabel(field. title)">
+                <el-input
+                    v-if="!(['status', 'datetime', 'file', 'users'].includes(field.data_type))"
+                    v-model="createItemParams[field.field_id]"
+                />
+              <el-select v-model="createItemParams[field.field_id]" placeholder="Select status" v-if="field.data_type === 'status'">
+              <el-option
+                    v-for="item in statusOptions"
+                    :key="item.status_id"
+                    :label="item.displayed_name"
+                    :value="item.status_id"
+                />
+              </el-select>
+              <el-select v-if="field.data_type === 'users'"
+                         v-model="selectedUser"
+                         @change="createItemParams[field.field_id] = [selectedUser]">
+              <el-option
+                    v-for="item in userOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                />
+              </el-select>
               <el-date-picker
                 v-if="field.data_type === 'datetime'"
                 v-model="createItemParams[field.field_id]"
                 type="datetime"
                 :placeholder="`Please input ${field.title.toLowerCase()}`"
                 format="YYYY/MM/DD HH:mm:ss"
+              />
+              <input
+                v-if="field.data_type === 'file'"
+                @input="(e) => createUploadFile(e, field)"
+                type="file"
               />
             </el-form-item>
           </div>
@@ -353,9 +378,16 @@ export default defineComponent({
   layout: "default",
   setup() {
     const urParse = window.location.origin.toString();
-    const tableLoading = ElLoading.service({
-      target: "table",
-    });
+    const statusOptions = [
+      {
+        label: 'active',
+        value: 'active'
+      },
+      {
+        label: 'suspended',
+        value: 'suspended'
+      }
+    ]
     const successNotif = (message?: string) => {
       ElNotification({
         title: "Success",
@@ -380,10 +412,10 @@ export default defineComponent({
       })
     }
     return {
+      statusOptions,
       errorMessage,
       leaveUpdateWarning,
       urParse,
-      tableLoading,
       successNotif,
     };
   },
@@ -430,13 +462,43 @@ export default defineComponent({
       fieldsLayout: {} as any,
       fieldSettings: {},
       newFileId: "",
+      statusOptions: [],
+      curUserId: "",
+      curUserName: {} as any,
+      userOptions: [],
+      selectedUser: ""
     };
   },
-  computed: {},
+  computed: {
+  },
   methods: {
+    async getStatus(){
+      const dsStatus = await datastoreService.getStatuses(this.ds_id as string)
+      this.statusOptions = dsStatus
+    },
+    async createUploadFile(e: any, field: any){
+      const file = e.target.files[0];
+      const filename = file.name;
+      const extension = file.type;
+      const toBase64File = await toBase64(file);
+      console.log("create file tobase64", toBase64File)
+      const payload = {
+        filename,
+        contentTypeFile: extension,
+        filepath: `${this.ds_id}/${this.curItemId}/${field.field_id}/${filename}`,
+        content: toBase64File,
+        d_id: this.ds_id,
+        p_id: this.id,
+        field_id: field.field_id,
+        item_id: this.curItemId,
+        display_order: 0,
+      } as ItemFileAttachmentPl;
+      const createFileRes = await storageService.createFile(payload);
+      this.createItemParams[field.field_id] = [...(this.createItemParams[field.field_id] || []), createFileRes.file_id]
+    },
     async deleteFile(field: any, file: any) {
-      const tableLoading = ElLoading.service({
-        target: "updateModal",
+      const updateLoad = ElLoading.service({
+        target: "createModal",
       });
       const fileId = file.file_id;
       try {
@@ -447,7 +509,7 @@ export default defineComponent({
       } catch (error) {
         console.log(error);
       } finally {
-        tableLoading.close()
+        updateLoad.close()
       }
     },
     warningCloseUpdateModal(done: () => void) {
@@ -465,7 +527,7 @@ export default defineComponent({
       }
     },
     async updateItem() {
-      const tableLoading = ElLoading.service({
+      const updateLoad = ElLoading.service({
         target: "updateModal",
       });
       const updateActionId =
@@ -493,7 +555,7 @@ export default defineComponent({
       } finally {
         this.visibleUpdate = false;
         this.viewDetail = false
-        tableLoading.close()
+        updateLoad.close()
       }
     },
     async getUpdateItemChanges(field: any, value: any, deletedFiled?: string) {
@@ -568,10 +630,7 @@ export default defineComponent({
       await this.fetchItemDetail()
     },
     async handleChangeFile(e: any, field: any) {
-      const tableLoading = ElLoading.service({
-        target: "updateModal",
-      });
-      const file = e.target.files[0];
+           const file = e.target.files[0];
       const filename = file.name;
       const extension = file.type;
       const toBase64File = await toBase64(file);
@@ -591,16 +650,12 @@ export default defineComponent({
       const newFileId = createFileRes.file_id;
       this.newFileId = newFileId;
       await this.getUpdateItemChanges(field, newFileId);
-      tableLoading.close()
     },
     dateFormat(dateString: string) {
       return moment(dateString).format("YYYY-MM-DD hh:mm:ss");
     },
 
     async createItem() {
-      const tableLoading = ElLoading.service({
-        target: "table",
-      });
       const dsActions: DsAction[] = await datastoreService.getActions(
         this.ds_id as string
       );
@@ -620,6 +675,7 @@ export default defineComponent({
         },
         item: this.createItemParams,
       };
+      console.log("newItemPl", newItemPl)
       const newItem = await itemService.createItem(
         this.id as string,
         this.ds_id as string,
@@ -630,8 +686,8 @@ export default defineComponent({
         this.successNotif();
         await this.getItems();
       }
-      tableLoading.close();
     },
+
 
     async deleteItem(row: any) {
       const tableLoading = ElLoading.service({
@@ -665,7 +721,7 @@ export default defineComponent({
 
     handleCloseModal() {
       this.visible = false
-      this.createItemParams = []
+      this.createItemParams = {}
     },
 
     async handleOpenUpdateModal(row: any) {
@@ -682,6 +738,9 @@ export default defineComponent({
     },
 
     async fetchItemDetail() {
+      const tableLoading = ElLoading.service({
+        target: "table",
+      });
       const res = await itemService.getItemDetail(
         this.ds_id as string,
         this.curItemId,
@@ -691,6 +750,7 @@ export default defineComponent({
 
       if (res){
         this.currentItemDetail = res
+        tableLoading.close();
       }
     },
 
@@ -701,16 +761,25 @@ export default defineComponent({
     async handleCLick(row: any) {
       this.curItemId = row.i_id;
       this.viewDetail = true;
-      const tableLoading = ElLoading.service({
+      const desLoad = ElLoading.service({
         target: "description",
       });
       await this.fetchItemDetail()
-      tableLoading.close();
+      const result = this.currentItemDetail.field_values.user_id.value
+      this.userOptions = result.map((r: any) => {
+        return {
+          label: r.user_name,
+          value: r.user_id
+        }
+      })
+      console.log(result)
+      console.log(this.userOptions)
+      desLoad.close();
     },
 
     //adjust label: capitalize first character, remove underscore
     getLabel(label: string) {
-      const idLabelArr = this.itemFields.map((i) => i.field_id);
+      let idLabelArr = this.itemFields.map((i) => i.field_id);
       if (idLabelArr.includes(label)) {
         const altLabel =
           this.itemFields.find((i) => i.field_id === label)?.title || "";
@@ -728,16 +797,28 @@ export default defineComponent({
         this.ds_id as string,
         this.getItemsParameters
       );
-      this.tableLoading.close();
     },
 
+    // async downloadFile(file: any) {
+    //   console.log("fileField", file);
+    //   const getFile = await storageService.getFile(file.file_id);
+    //   this.curImg = getFile;
+    //   console.log("curImg", this.curImg);
+    //   itemService.download(getFile, file.filename, file.contentType);
+    // },
+
     async downloadFile(file: any) {
-      console.log("fileField", file);
-      const getFile = await storageService.getFile(file.file_id);
-      this.curImg = getFile;
-      console.log("curImg", this.curImg);
-      itemService.download(getFile, file.filename, file.contentType);
+      const res = await storageService.getFile(file.file_id);
+      this.curImg = res.data;
+      if (res.data) {
+        let a = document.createElement("a");
+        const realData = res.data.split('/').slice(2).join('/');
+        a.href = `data:${file.contentType};base64,/${realData}`
+        a.download = res.filename;
+        a.click();
+      }
     },
+
     //get to-show column title and input field
     async getFields() {
       const fieldInfo = await datastoreService.getFields(
@@ -756,6 +837,7 @@ export default defineComponent({
           unique: fieldInfo.fields[item].unique,
         })
       );
+
       this.itemFieldsExceptFile = this.itemFields.filter(
         (i) => i.data_type !== "file"
       );
@@ -764,6 +846,7 @@ export default defineComponent({
   mounted() {
     this.getItems();
     this.getFields();
+    this.getStatus()
   },
 });
 </script>

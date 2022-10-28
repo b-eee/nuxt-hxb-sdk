@@ -6,6 +6,7 @@ export const datastoreService = {
   getField,
   getActions,
   getDetail,
+  getStatuses
 };
 
 async function initHxbClient() {
@@ -40,6 +41,13 @@ async function getField(fieldId: string, datastoreId: string) {
     datastoreId
   );
   return dsField;
+}
+async function getStatuses(datastoreId: string) {
+  const hexabase = await initHxbClient();
+  const { dsStatuses, error } = await hexabase.datastores.getStatuses(
+    datastoreId
+  );
+  return dsStatuses;
 }
 
 async function getActions(datastoreId: string) {
