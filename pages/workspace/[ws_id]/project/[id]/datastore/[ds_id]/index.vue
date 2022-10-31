@@ -7,7 +7,7 @@
       >
         <span class="tableTitle">Item</span>
         <span>
-          <el-button type="primary" @click="visible = true"
+          <el-button type="primary" @click="handleOpenCreatItemModal"
             >Create Item</el-button
           >
         </span>
@@ -466,12 +466,17 @@ export default defineComponent({
       curUserId: "",
       curUserName: {} as any,
       userOptions: [],
-      selectedUser: ""
+      selectedUser: "",
+
     };
   },
   computed: {
   },
   methods: {
+    async handleOpenCreatItemModal(){
+      this.visible = true
+      this.createItemParams.item_id = await itemService.createItemId(this.ds_id as string) as string;
+    },
     async getStatus(){
       const dsStatus = await datastoreService.getStatuses(this.ds_id as string)
       this.statusOptions = dsStatus
@@ -490,7 +495,7 @@ export default defineComponent({
         d_id: this.ds_id,
         p_id: this.id,
         field_id: field.field_id,
-        item_id: this.curItemId,
+        item_id: this.createItemParams.item_id,
         display_order: 0,
       } as ItemFileAttachmentPl;
       const createFileRes = await storageService.createFile(payload);

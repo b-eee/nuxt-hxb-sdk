@@ -405,6 +405,7 @@ where `tabIndex` and `idx` will be calculated as follows
 
 ```tsx
 tabindex = (fieldIdLayout.row + 1) * 10 + fieldIdLayout.col;
+//fieldIdLayout is field settings of chosen filed, `find` from fieldLayout list, taken from getFields api (datastore service)
 ```
 ```tsx
 const fieldSettings = await datastoreService.getDetail(
