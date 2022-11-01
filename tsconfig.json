@@ -1,7 +1,4 @@
 {
   "extends": "./.nuxt/tsconfig.json",
-  "compilerOptions": {
-    "types": ["element-plus/global","@pinia/nuxt",  "@nuxt/types", "@types/node"],
-    "noEmit": true,
-    }
+  "types": ["element-plus/global","@pinia/nuxt", "@nuxt/types"]
 }
