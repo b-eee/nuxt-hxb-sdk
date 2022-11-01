@@ -1,7 +1,6 @@
 import { defineNuxtConfig } from "nuxt/config";
 import ElementPlus from "unplugin-element-plus/vite";
 
-// https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
   ssr: false,
   target: "static",
@@ -43,7 +42,7 @@ export default defineNuxtConfig({
   },
 
   // build modules
-  modules: ["@vueuse/nuxt", "@unocss/nuxt", "@pinia/nuxt"],
+  modules: ["@vueuse/nuxt", "@unocss/nuxt", "@pinia/nuxt", '@nuxt/typescript-build'],
 
   // auto import components
   components: true,
