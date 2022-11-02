@@ -5,7 +5,7 @@
     "dev": "nuxi dev",
     "build": "nuxi build",
     "preview": "nuxi preview",
-    "start": "node .output/server/index.mjs",
+    "start": "node .output/public/index.mjs",
     "generate": "nuxi generate"
   },
   "dependencies": {
