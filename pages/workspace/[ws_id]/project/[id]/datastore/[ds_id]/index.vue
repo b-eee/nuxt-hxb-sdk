@@ -158,26 +158,26 @@
         <div style="display: flex">
           <div style="flex-grow: 1; margin-right: 20px">
             <el-form-item :label="getLabel(field. title)">
-                <el-input
+              <el-input
                     v-if="!(['status', 'datetime', 'file', 'users'].includes(field.data_type))"
-                    v-model="createItemParams[field.field_id]"
-                />
+                v-model="createItemParams[field.field_id]"
+              />
               <el-select v-model="createItemParams[field.field_id]" placeholder="Select status" v-if="field.data_type === 'status'">
-              <el-option
-                    v-for="item in statusOptions"
-                    :key="item.status_id"
-                    :label="item.displayed_name"
-                    :value="item.status_id"
+                <el-option
+                  v-for="item in statusOptions"
+                  :key="item.status_id"
+                  :label="item.displayed_name"
+                  :value="item.status_id"
                 />
               </el-select>
               <el-select v-if="field.data_type === 'users'"
-                         v-model="selectedUser"
+                v-model="selectedUser"
                          @change="createItemParams[field.field_id] = [selectedUser]">
-              <el-option
-                    v-for="item in userOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
+                <el-option
+                  v-for="item in userOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
                 />
               </el-select>
               <el-date-picker
@@ -263,7 +263,7 @@
                       {{ file.filename }}
                     </el-button>
                     <el-button
-                      @click="deleteFile(field, file)"
+                      @click="deleteFile(file)"
                       style="
                         margin-left: 0;
                         border-top-left-radius: 0;
@@ -378,16 +378,6 @@ export default defineComponent({
   layout: "default",
   setup() {
     const urParse = window.location.origin.toString();
-    const statusOptions = [
-      {
-        label: 'active',
-        value: 'active'
-      },
-      {
-        label: 'suspended',
-        value: 'suspended'
-      }
-    ]
     const successNotif = (message?: string) => {
       ElNotification({
         title: "Success",
@@ -412,7 +402,6 @@ export default defineComponent({
       })
     }
     return {
-      statusOptions,
       errorMessage,
       leaveUpdateWarning,
       urParse,
@@ -501,9 +490,10 @@ export default defineComponent({
       const createFileRes = await storageService.createFile(payload);
       this.createItemParams[field.field_id] = [...(this.createItemParams[field.field_id] || []), createFileRes.file_id]
     },
-    async deleteFile(field: any, file: any) {
+    async deleteFile(file: any) {
+      const field = this.itemFields.find(i => i.data_type === 'file')
       const updateLoad = ElLoading.service({
-        target: "createModal",
+        target: "updateModal",
       });
       const fileId = file.file_id;
       try {
@@ -518,7 +508,6 @@ export default defineComponent({
       }
     },
     warningCloseUpdateModal(done: () => void) {
-      console.log(this.updateItemChanges[0])
       if (this.updateItemChanges[0]) {
         ElMessageBox.confirm("Those updates will be removed")
           .then(() => {
@@ -577,8 +566,9 @@ export default defineComponent({
             objectHasFile.value.map((i: any) => i.file_id)) ||
           [];
       }
-      if (deletedFiled && !value){
-        fileIds = fileIds.filter((f: any) => f.file_id !== deletedFiled)
+      if (deletedFiled) {
+        console.log("fileIds in delete fileeee", fileIds)
+        fileIds = fileIds.filter((f: string) => f !== deletedFiled);
       }
 
       const fieldSettings = await datastoreService.getDetail(
@@ -635,11 +625,13 @@ export default defineComponent({
       await this.fetchItemDetail()
     },
     async handleChangeFile(e: any, field: any) {
-           const file = e.target.files[0];
+      const tableLoading = ElLoading.service({
+        target: "updateModal",
+      });
+      const file = e.target.files[0];
       const filename = file.name;
       const extension = file.type;
       const toBase64File = await toBase64(file);
-      console.log("tobase64", toBase64File)
       const payload = {
         filename,
         contentTypeFile: extension,
@@ -655,6 +647,7 @@ export default defineComponent({
       const newFileId = createFileRes.file_id;
       this.newFileId = newFileId;
       await this.getUpdateItemChanges(field, newFileId);
+      tableLoading.close()
     },
     dateFormat(dateString: string) {
       return moment(dateString).format("YYYY-MM-DD hh:mm:ss");
@@ -680,7 +673,6 @@ export default defineComponent({
         },
         item: this.createItemParams,
       };
-      console.log("newItemPl", newItemPl)
       const newItem = await itemService.createItem(
         this.id as string,
         this.ds_id as string,
