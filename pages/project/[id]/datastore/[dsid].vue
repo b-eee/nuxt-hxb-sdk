@@ -38,11 +38,6 @@ import {
 import {defineComponent} from "vue";
 import {ItemType} from "~/pages/datastore/[ds_id]/item/type";
 import {definePageMeta} from "#imports";
-import auth from "~/middleware/auth";
-
-definePageMeta({
-  middleware: auth
-})
 
 export default defineComponent({
   name: "datastore",

@@ -81,7 +81,6 @@ import { alertService } from "~/services/alert.service";
 import {createApp, defineComponent, reactive, ref} from "vue";
 import {definePageMeta} from "#imports";
 import {useRuntimeConfig, useState} from "#imports";
-import auth from "~/middleware/auth";
 import {useUser} from "~/store/user";
 
 interface LoginInputTypes {
@@ -91,7 +90,6 @@ interface LoginInputTypes {
 
 definePageMeta({
   layout: false,
-  middleware: auth,
 });
 
 export default defineComponent({

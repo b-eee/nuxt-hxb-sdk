@@ -159,16 +159,12 @@ import {
 } from "element-plus";
 import {defineComponent, ref} from "vue";
 import {definePageMeta} from "#imports";
-import auth from "../../middleware/auth";
 import {ApplicationAndDataStore, Templates} from "@hexabase/hexabase-js/dist/lib/types/application";
 import {Workspaces} from "@hexabase/hexabase-js/dist/lib/types/workspace";
 import {CreateProjectPl} from "@hexabase/hexabase-js/src/lib/types/application";
 import type { TabsPaneContext } from 'element-plus'
 import {FieldNameENJP} from "@hexabase/hexabase-js/src/lib/util/type";
 
-definePageMeta({
-  middleware: auth
-})
 export default defineComponent({
   components: {
     ElSelect,

@@ -11,12 +11,10 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import auth from "~/middleware/auth";
 import { definePageMeta } from "#imports";
 import { ElButton } from "element-plus";
 
 definePageMeta({
-  middleware: auth,
   layout: "custom",
 });
 
