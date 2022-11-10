@@ -38,7 +38,7 @@ exports["default"] = (0, config_1.defineNuxtConfig)({
         plugins: [(0, vite_1["default"])()]
     },
     // build modules
-    modules: ["@vueuse/nuxt", "@unocss/nuxt", "@pinia/nuxt", '@nuxt/typescript-build'],
+    modules: ["@vueuse/nuxt", "@unocss/nuxt", "@pinia/nuxt"],
     // auto import components
     components: true,
     // vueuse

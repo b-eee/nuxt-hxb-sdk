@@ -42,7 +42,7 @@ export default defineNuxtConfig({
   },
 
   // build modules
-  modules: ["@vueuse/nuxt", "@unocss/nuxt", "@pinia/nuxt", '@nuxt/typescript-build'],
+  modules: ["@vueuse/nuxt", "@unocss/nuxt", "@pinia/nuxt"],
 
   // auto import components
   components: true,
