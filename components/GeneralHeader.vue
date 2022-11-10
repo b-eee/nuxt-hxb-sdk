@@ -16,8 +16,8 @@
           src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
         />
         <el-tag v-if="user && user.username">Ola {{ user.username }}</el-tag>
-        <el-button @click="handleLogout"> Log out </el-button>
-        <el-button v-if="!user" style="background-color: mediumseagreen">
+        <el-button v-if="user" @click="handleLogout"> Log out </el-button>
+        <el-button style="background-color: mediumseagreen">
           <nuxt-link
             to="/auth/login"
             style="background-color: mediumseagreen; color: #fff"
