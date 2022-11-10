@@ -70,7 +70,7 @@ import {
   ElDivider,
   ElButton,
 } from "element-plus";
-import {navigateTo} from "nuxt/app";
+import {navigateTo} from "#imports";
 export default defineComponent({
   name: "MainMenu",
   components: {

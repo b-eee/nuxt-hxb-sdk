@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import {useRoute, useRuntimeConfig} from "nuxt/app";
+import {useRoute, useRuntimeConfig} from "#imports";
 import {itemService} from "../../../../services";
 import {
   ElTable,

@@ -1,5 +1,5 @@
 import {createClient} from '@hexabase/hexabase-js'
-import {useRuntimeConfig} from "nuxt/app";
+import {useRuntimeConfig} from "#imports";
 import {CreateProjectPl} from "@hexabase/hexabase-js/src/lib/types/application";
 export const appService = {
     getAppAndDs,

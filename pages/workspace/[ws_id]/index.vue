@@ -57,7 +57,7 @@
 import {defineComponent} from "vue";
 import {appService, itemService} from "~/services";
 import {ApplicationAndDataStore} from "@hexabase/hexabase-js/dist/lib/types/application";
-import {useRoute} from "nuxt/app";
+import {useRoute} from "#imports";
 import {ElIcon, ElSpace, ElOption, ElSelect, ElRow, ElCol, ElCollapse, ElCollapseItem, ElTable} from "element-plus";
 import {MoreFilled, Plus} from '@element-plus/icons-vue'
 import {GetItemsPl} from "@hexabase/hexabase-js/src/lib/types/item/input";

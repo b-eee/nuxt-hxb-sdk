@@ -1,7 +1,7 @@
 import { createClient } from "@hexabase/hexabase-js";
 import { useUser } from "~/store/user";
-import { useRuntimeConfig } from "nuxt/app";
-import { useRouter } from "nuxt/app";
+import { useRuntimeConfig } from "#imports";
+import { useRouter } from "#imports";
 
 async function login(email: string, password: string) {
   let user = {} as any;

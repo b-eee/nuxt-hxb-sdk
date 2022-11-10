@@ -9,7 +9,7 @@ import {
 import { Buffer } from 'buffer';
 import { GetHistoryPl } from "@hexabase/hexabase-js/dist/lib/types/item";
 import { createClient } from "@hexabase/hexabase-js";
-import { useRuntimeConfig } from "nuxt/app";
+import { useRuntimeConfig } from "#imports";
 
 export const itemService = {
   getItems,

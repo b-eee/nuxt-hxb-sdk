@@ -328,7 +328,7 @@ import {
   UploadUserFile
 } from "element-plus";
 import moment from "moment";
-import { useRoute, useRuntimeConfig } from "nuxt/app";
+import { useRoute, useRuntimeConfig } from "#imports";
 import { defineComponent, ref } from "vue";
 import { itemService } from "~/services";
 import { DsItems } from "@hexabase/hexabase-js/dist/lib/types/item";

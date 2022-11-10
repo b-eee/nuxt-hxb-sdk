@@ -1,6 +1,6 @@
 import {QueryTaskList} from "@hexabase/hexabase-js/src/lib/types/workspace/input";
 import {createClient, HexabaseClient} from "@hexabase/hexabase-js";
-import {useRuntimeConfig} from "nuxt/app";
+import {useRuntimeConfig} from "#imports";
 export const workspaceService = {
     getWorkspaces,
     setWorkspace,

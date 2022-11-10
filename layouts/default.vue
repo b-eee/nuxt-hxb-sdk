@@ -25,7 +25,7 @@ import {
   ElMain,
   ElFooter
 } from 'element-plus'
-import {useRouter} from "nuxt/app";
+import {useRouter} from "#imports";
 import {useUser} from "../store/user";
 export default {
   components: {

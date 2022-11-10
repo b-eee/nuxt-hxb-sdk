@@ -94,7 +94,7 @@ For example, add `login` function to user.service
 //user.service.ts
 
 import { createClient } from "@hexabase/hexabase-js";
-import { useRoute, useRouter } from "nuxt/app";
+import { useRoute, useRouter } from "#imports";
 
 export const userService = {
   login,
@@ -139,7 +139,7 @@ After login, let's get all available service.
 // workspace.service.ts
 
 import { createClient, HexabaseClient } from "@hexabase/hexabase-js";
-import { useRuntimeConfig } from "nuxt/app";
+import { useRuntimeConfig } from "#imports";
 export const workspaceService = {
   getWorkspaces,
 };

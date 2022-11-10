@@ -48,7 +48,7 @@ import {
   ElInput
 } from "element-plus";
 import moment from "moment";
-import {useRoute, useRuntimeConfig} from "nuxt/app";
+import {useRoute, useRuntimeConfig} from "#imports";
 import {defineComponent, ref} from "vue";
 import {DsItemType, GetItemsPlType} from "./type";
 import {TableColumnCtx} from "element-plus/es/components/table/src/table-column/defaults";
