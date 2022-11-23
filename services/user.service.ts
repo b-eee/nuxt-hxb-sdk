@@ -14,7 +14,7 @@ async function login(email: string, password: string) {
   const { token, error } = await hexabase.auth.login({ email, password });
   console.log(token);
   if (token && !error) {
-    const { userInfo } = await hexabase.users.get(token);
+    const { userInfo } = await hexabase.user.get(token);
     if (userInfo && !error) {
       user = userInfo;
       user.token = token;

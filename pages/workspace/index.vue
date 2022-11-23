@@ -6,7 +6,9 @@
         style="display: flex; justify-content: space-between"
       >
         <span class="tableTitle">Workspace</span>
-        <el-button type="primary" @click="visibleCreateWs = true">Create Workspace</el-button>
+        <el-button type="primary" @click="visibleCreateWs = true"
+          >Create Workspace</el-button
+        >
       </div>
     </template>
     <div class="item current-id-ws">
@@ -20,26 +22,17 @@
           style="width: max-content"
         >
           <el-option
-            v-for="ws in workspaces.workspaces"
+            v-for="ws in workspaces?.workspaces"
             :key="ws.workspace_id"
             :label="ws.workspace_name"
             :value="ws.workspace_id"
           />
         </el-select>
-<!--        <nuxt-link class="ml-3" :to="`/workspace/${curWsId}`">Go to workspace</nuxt-link>-->
+        <!--        <nuxt-link class="ml-3" :to="`/workspace/${curWsId}`">Go to workspace</nuxt-link>-->
       </div>
       <div>
-        <el-table
-            :data="appDatastore"
-            style="width: 100%"
-            ref="table"
-        >
-          <el-table-column
-            prop="index"
-            type="index"
-            label="No"
-            width="50"
-          />
+        <el-table :data="appDatastore" style="width: 100%" ref="table">
+          <el-table-column prop="index" type="index" label="No" width="50" />
           <el-table-column
             prop="application_id"
             label="Application id"
@@ -48,8 +41,8 @@
           <el-table-column prop="display_id" label="Display id" width="250" />
           <el-table-column prop="name" label="Name" />
           <el-table-column prop="datastores" label="Datastores">
-            <template  #default="scope">
-                <el-row
+            <template #default="scope">
+              <el-row
                 v-for="ds in scope.row.datastores"
                 :key="ds.id"
                 class="my-4"
@@ -67,48 +60,70 @@
           </el-table-column>
         </el-table>
         <div style="margin-top: 1rem">
-          <el-button type="primary" @click="openCreateAppModal" ref="createAppBtn">Create App</el-button>
+          <el-button
+            type="primary"
+            @click="openCreateAppModal"
+            ref="createAppBtn"
+            >Create App</el-button
+          >
         </div>
       </div>
     </div>
     <el-dialog
-        v-model="visibleCreateWs"
-        title="Create new workspace"
-        width="30%"
+      v-model="visibleCreateWs"
+      title="Create new workspace"
+      width="30%"
     >
       <el-input placeholder="please enter workspace name" v-model="newWsName" />
       <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="handleCloseModalCreateWs">Cancel</el-button>
-        <el-button type="primary" @click="() => createWorkspace(newWsName)"
-        >Add</el-button
-        >
-      </span>
+        <span class="dialog-footer">
+          <el-button @click="handleCloseModalCreateWs">Cancel</el-button>
+          <el-button type="primary" @click="() => createWorkspace(newWsName)"
+            >Add</el-button
+          >
+        </span>
       </template>
     </el-dialog>
-<!--    /////////////////////////-->
+    <!--    /////////////////////////-->
     <el-dialog
-        v-model="visibleCreateApp"
-        title="Create new application"
-        width="75%"
+      v-model="visibleCreateApp"
+      title="Create new application"
+      width="75%"
     >
       <div>
-        <div style="display: flex" >
+        <div style="display: flex">
           <p style="width: 100px; margin-right: 1rem">Project name</p>
-          <el-input label="Project name" style="flex-grow: 1; width: 100%" v-model="createAppName" placeholder="please enter the application name"/>
+          <el-input
+            label="Project name"
+            style="flex-grow: 1; width: 100%"
+            v-model="createAppName"
+            placeholder="please enter the application name"
+          />
         </div>
-        <el-radio-group v-model="curTemplateId" style="width: 100%; display: block" @change="handleChangeTemplate">
+        <el-radio-group
+          v-model="curTemplateId"
+          style="width: 100%; display: block"
+          @change="handleChangeTemplate"
+        >
           <el-tooltip
-              class="box-item"
-              effect="dark"
-              content="Create application without template"
+            class="box-item"
+            effect="dark"
+            content="Create application without template"
           >
-          <el-radio border style="margin-top: 1rem; margin-bottom: 1rem" label="Blank" />
+            <el-radio
+              border
+              style="margin-top: 1rem; margin-bottom: 1rem"
+              label="Blank"
+            />
           </el-tooltip>
-        <el-tabs class="demo-tabs" @tab-click="handleClick">
-          <el-tab-pane v-for="category in templates.categories" :key="category.category" :label="category.category">
-            <div v-for="tp in category.templates">
-              <div style="margin-top: 0.75rem">
+          <el-tabs class="demo-tabs" @tab-click="handleClick">
+            <el-tab-pane
+              v-for="category in templates?.categories"
+              :key="category.category"
+              :label="category.category"
+            >
+              <div v-for="tp in category.templates" :key="tp.tp_id">
+                <div style="margin-top: 0.75rem">
                   <el-radio :label="tp.tp_id" style="width: 100%" border>
                     <span style="width: 500px; padding: 0.5rem; width: 100%">
                       {{ tp.name }}
@@ -117,53 +132,52 @@
                       {{ tp.description }}
                     </span>
                   </el-radio>
+                </div>
               </div>
-            </div>
-          </el-tab-pane>
-        </el-tabs>
+            </el-tab-pane>
+          </el-tabs>
         </el-radio-group>
       </div>
       <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="handleCloseModalCreateApp">Cancel</el-button>
-        <el-button type="primary" @click="() => createApp()"
-        >Add</el-button
-        >
-      </span>
+        <span class="dialog-footer">
+          <el-button @click="handleCloseModalCreateApp">Cancel</el-button>
+          <el-button type="primary" @click="() => createApp()">Add</el-button>
+        </span>
       </template>
     </el-dialog>
   </el-card>
 </template>
 
 <script lang="ts">
-import { appService, workspaceService } from "~/services";
 import {
-  ElSelect,
-  ElOption,
-  ElCard,
-  ElTable,
-  ElTableColumn,
-  ElRow,
-  ElCol,
+  ApplicationAndDataStore,
+  CreateProjectPl,
+  Templates,
+} from "@hexabase/hexabase-js/dist/lib/types/project";
+import { Workspaces } from "@hexabase/hexabase-js/dist/lib/types/workspace";
+import type { TabsPaneContext } from "element-plus";
+import {
   ElButton,
-  ElLoading,
+  ElCard,
+  ElCol,
   ElDialog,
   ElInput,
+  ElLoading,
   ElNotification,
-  ElRadioGroup,
+  ElOption,
   ElRadio,
-  ElTabs,
-  ElTabPane,
+  ElRadioGroup,
+  ElRow,
+  ElSelect,
   ElSpace,
-    ElTooltip
+  ElTable,
+  ElTableColumn,
+  ElTabPane,
+  ElTabs,
+  ElTooltip,
 } from "element-plus";
-import {defineComponent, ref} from "vue";
-import {definePageMeta} from "#imports";
-import {ApplicationAndDataStore, Templates} from "@hexabase/hexabase-js/dist/lib/types/application";
-import {Workspaces} from "@hexabase/hexabase-js/dist/lib/types/workspace";
-import {CreateProjectPl} from "@hexabase/hexabase-js/src/lib/types/application";
-import type { TabsPaneContext } from 'element-plus'
-import {FieldNameENJP} from "@hexabase/hexabase-js/src/lib/util/type";
+import { defineComponent } from "vue";
+import { appService, workspaceService } from "~/services";
 
 export default defineComponent({
   components: {
@@ -183,21 +197,21 @@ export default defineComponent({
     ElTabs,
     ElTabPane,
     ElSpace,
-    ElTooltip
+    ElTooltip,
   },
   name: "Workspace",
   layout: "default",
   setup() {
     const successNotif = (message?: string) => {
       ElNotification({
-        title: 'Success',
-        message: message || 'Workspace created',
-        type: 'success',
-      })
-    }
+        title: "Success",
+        message: message || "Workspace created",
+        type: "success",
+      });
+    };
     const handleClick = (tab: TabsPaneContext, event: Event) => {
-      console.log(tab, event)
-    }
+      console.log(tab, event);
+    };
     return {
       handleClick,
       successNotif,
@@ -212,29 +226,28 @@ export default defineComponent({
       newWsName: "",
       visibleCreateWs: false,
       visibleCreateApp: false,
-      templates: {} as Templates | undefined,
-      curTemplateId: 'Blank',
-      createAppName: '',
+      templates: {} as Templates,
+      curTemplateId: "Blank",
+      createAppName: "",
     };
   },
   methods: {
-    handleChangeTemplate(){
-    },
-    async openCreateAppModal(){
+    handleChangeTemplate() {},
+    async openCreateAppModal() {
       const btnLoading = ElLoading.service({
-        target: 'createAppBtn'
-      })
-      this.templates = await appService.getTemplates()
+        target: "createAppBtn",
+      });
+      this.templates = await appService.getTemplates();
       this.visibleCreateApp = true;
-      btnLoading.close()
+      btnLoading.close();
     },
-    handleCloseModalCreateApp(){
-      this.visibleCreateApp = false
-      this.createAppName = ''
+    handleCloseModalCreateApp() {
+      this.visibleCreateApp = false;
+      this.createAppName = "";
     },
     handleCloseModalCreateWs() {
-      this.visibleCreateWs = false
-      this.newWsName = ""
+      this.visibleCreateWs = false;
+      this.newWsName = "";
     },
     async getAppAndDsData(id: string) {
       const appAndDs = await appService.getAppAndDs(id);
@@ -245,60 +258,59 @@ export default defineComponent({
     async getWorkspaces() {
       this.workspaces = await workspaceService.getWorkspaces();
       if (this.workspaces && this.workspaces.current_workspace_id)
-      this.curWsId = this.workspaces.current_workspace_id;
+        this.curWsId = this.workspaces.current_workspace_id;
       await this.getAppAndDsData(this.curWsId);
-
     },
     async setCurrentWs(wsId: string) {
       await workspaceService.setWorkspace(wsId);
     },
     async createWorkspace(name: string) {
       const tableLoading = ElLoading.service({
-        target: 'table'
-      })
+        target: "table",
+      });
       const w_id = await workspaceService.createWorkspace(name);
-      await this.getWorkspaces()
-      if (w_id){
-        this.curWsId = w_id
+      await this.getWorkspaces();
+      if (w_id) {
+        this.curWsId = w_id;
       }
-      this.visibleCreateWs = false
-      this.newWsName = ""
-      this.successNotif()
-      tableLoading.close()
+      this.visibleCreateWs = false;
+      this.newWsName = "";
+      this.successNotif();
+      tableLoading.close();
     },
     async createApp() {
       const tableLoading = ElLoading.service({
-        target: 'table'
-      })
+        target: "table",
+      });
       const createAppPl = {
-        tp_id: this.curTemplateId === 'Blank' ? '' : this.curTemplateId,
+        tp_id: this.curTemplateId === "Blank" ? "" : this.curTemplateId,
         name: {
           en: this.createAppName,
-          ja: this.createAppName
-        }
-      } as CreateProjectPl
+          ja: this.createAppName,
+        },
+      } as CreateProjectPl;
       const app_id = await appService.createApp(createAppPl);
 
-      this.visibleCreateWs = false
-      this.successNotif('new project created successfully')
-      tableLoading.close()
+      this.visibleCreateWs = false;
+      this.successNotif("new project created successfully");
+      tableLoading.close();
     },
 
     async handleChange() {
       const tableLoading = ElLoading.service({
-        target: 'table'
-      })
+        target: "table",
+      });
       await this.setCurrentWs(this.curWsId);
       await this.getWorkspaces();
-      tableLoading.close()
+      tableLoading.close();
     },
   },
   mounted() {
     const tableLoading = ElLoading.service({
-      target: 'table'
-    })
+      target: "table",
+    });
     this.getWorkspaces();
-    tableLoading.close()
+    tableLoading.close();
   },
 });
 </script>
@@ -310,10 +322,9 @@ export default defineComponent({
   line-height: 2rem;
 }
 
-.el-radio{
+.el-radio {
   height: fit-content;
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
-
 </style>

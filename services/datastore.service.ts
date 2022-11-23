@@ -1,17 +1,17 @@
-import { useRuntimeConfig } from "#app";
-import { createClient } from "@hexabase/hexabase-js";
+import { useRuntimeConfig } from "#imports";
+import { createClient, HexabaseClient } from "@hexabase/hexabase-js";
 
 export const datastoreService = {
   getFields,
   getField,
   getActions,
   getDetail,
-  getStatuses
+  getStatuses,
 };
 
 async function initHxbClient() {
   const token = JSON.parse(localStorage.getItem("user")!).token;
-  const hexabase =
+  const hexabase: HexabaseClient =
     token &&
     (await createClient({ url: useRuntimeConfig().public.baseUrl, token }));
   return hexabase;
@@ -19,7 +19,7 @@ async function initHxbClient() {
 
 async function getFields(datastoreId: string, projectId: string) {
   const hexabase = await initHxbClient();
-  const { dsFields, error } = await hexabase.datastores.getFields(
+  const { dsFields, error } = await hexabase.datastore.getFields(
     datastoreId,
     projectId
   );
@@ -28,7 +28,7 @@ async function getFields(datastoreId: string, projectId: string) {
 
 async function getDetail(datastoreId: string) {
   const hexabase = await initHxbClient();
-  const { datastoreSetting, error } = await hexabase.datastores.getDetail(
+  const { datastoreSetting, error } = await hexabase.datastore.getDetail(
     datastoreId
   );
   return datastoreSetting;
@@ -36,7 +36,7 @@ async function getDetail(datastoreId: string) {
 
 async function getField(fieldId: string, datastoreId: string) {
   const hexabase = await initHxbClient();
-  const { dsField, error } = await hexabase.datastores.getField(
+  const { dsField, error } = await hexabase.datastore.getField(
     fieldId,
     datastoreId
   );
@@ -44,7 +44,7 @@ async function getField(fieldId: string, datastoreId: string) {
 }
 async function getStatuses(datastoreId: string) {
   const hexabase = await initHxbClient();
-  const { dsStatuses, error } = await hexabase.datastores.getStatuses(
+  const { dsStatuses, error } = await hexabase.datastore.getStatuses(
     datastoreId
   );
   return dsStatuses;
@@ -52,8 +52,6 @@ async function getStatuses(datastoreId: string) {
 
 async function getActions(datastoreId: string) {
   const hexabase = await initHxbClient();
-  const { dsActions, error } = await hexabase.datastores.getActions(
-    datastoreId
-  );
+  const { dsActions, error } = await hexabase.datastore.getActions(datastoreId);
   return dsActions;
 }

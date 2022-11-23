@@ -1,5 +1,5 @@
-import { useRuntimeConfig } from "#app";
-import { createClient } from "@hexabase/hexabase-js";
+import { useRuntimeConfig } from "#imports";
+import { createClient, HexabaseClient } from "@hexabase/hexabase-js";
 import { ItemFileAttachmentPl } from "@hexabase/hexabase-js/dist/lib/types/storage";
 
 export const storageService = {
@@ -10,7 +10,7 @@ export const storageService = {
 
 async function initHxbClient() {
   const token = JSON.parse(localStorage.getItem("user")!).token;
-  const hexabase =
+  const hexabase: HexabaseClient =
     token &&
     (await createClient({ url: useRuntimeConfig().public.baseUrl, token }));
   return hexabase;
@@ -30,6 +30,6 @@ async function createFile(payload: ItemFileAttachmentPl) {
 
 async function deleteFile(fileId: string) {
   const hexabase = await initHxbClient();
-  const { data, error } = await hexabase.storage.delete({ fileId });
+  const { data, error } = await hexabase.storage.delete(fileId);
   return data;
 }

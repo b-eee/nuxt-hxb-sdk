@@ -100,7 +100,10 @@
                   >
                     <p v-if="field?.field_name === 'Status'">
                       <template>
-                        {{ (statusOptions.find(s => s.status_id === field.value))?.displayed_name  }}
+                        {{
+                          statusOptions.find((s) => s.status_id === field.value)
+                            ?.displayed_name
+                        }}
                       </template>
                     </p>
                     <p v-if="field?.field_name === 'user_id'">
@@ -154,15 +157,23 @@
       label-position="right"
       label-width="100px"
     >
-      <template v-for="(field, index) in itemFields" :key="field.field_id">
+      <template v-for="field in itemFields" :key="field.field_id">
         <div style="display: flex">
           <div style="flex-grow: 1; margin-right: 20px">
-            <el-form-item :label="getLabel(field. title)">
+            <el-form-item :label="getLabel(field.title)">
               <el-input
-                    v-if="!(['status', 'datetime', 'file', 'users'].includes(field.data_type))"
+                v-if="
+                  !['status', 'datetime', 'file', 'users'].includes(
+                    field.data_type
+                  )
+                "
                 v-model="createItemParams[field.field_id]"
               />
-              <el-select v-model="createItemParams[field.field_id]" placeholder="Select status" v-if="field.data_type === 'status'">
+              <el-select
+                v-model="createItemParams[field.field_id]"
+                placeholder="Select status"
+                v-if="field.data_type === 'status'"
+              >
                 <el-option
                   v-for="item in statusOptions"
                   :key="item.status_id"
@@ -170,9 +181,11 @@
                   :value="item.status_id"
                 />
               </el-select>
-              <el-select v-if="field.data_type === 'users'"
+              <el-select
+                v-if="field.data_type === 'users'"
                 v-model="selectedUser"
-                         @change="createItemParams[field.field_id] = [selectedUser]">
+                @change="createItemParams[field.field_id] = [selectedUser]"
+              >
                 <el-option
                   v-for="item in userOptions"
                   :key="item.value"
@@ -243,7 +256,12 @@
                 :key="field.field_id"
               >
                 <span
-                  v-if="field.dataType === 'file' && (field.value && field.value[0] && field.value[0].filename)"
+                  v-if="
+                    field.dataType === 'file' &&
+                    field.value &&
+                    field.value[0] &&
+                    field.value[0].filename
+                  "
                   style="margin-right: 5px"
                 >
                   <span
@@ -325,7 +343,7 @@ import {
   ElUpload,
   UploadProps,
   ElMessage,
-  UploadUserFile
+  UploadUserFile,
 } from "element-plus";
 import moment from "moment";
 import { useRoute, useRuntimeConfig } from "#imports";
@@ -397,10 +415,10 @@ export default defineComponent({
     const errorMessage = () => {
       ElMessage({
         showClose: true,
-        message: 'You have to update item after delete a file.',
-        type: 'warning',
-      })
-    }
+        message: "You have to update item after delete a file.",
+        type: "warning",
+      });
+    };
     return {
       errorMessage,
       leaveUpdateWarning,
@@ -451,31 +469,31 @@ export default defineComponent({
       fieldsLayout: {} as any,
       fieldSettings: {},
       newFileId: "",
-      statusOptions: [],
+      statusOptions: [] as any,
       curUserId: "",
       curUserName: {} as any,
-      userOptions: [],
+      userOptions: [] as any,
       selectedUser: "",
-
     };
   },
-  computed: {
-  },
+  computed: {},
   methods: {
-    async handleOpenCreatItemModal(){
-      this.visible = true
-      this.createItemParams.item_id = await itemService.createItemId(this.ds_id as string) as string;
+    async handleOpenCreatItemModal() {
+      this.visible = true;
+      this.createItemParams.item_id = (await itemService.createItemId(
+        this.ds_id as string
+      )) as string;
     },
-    async getStatus(){
-      const dsStatus = await datastoreService.getStatuses(this.ds_id as string)
-      this.statusOptions = dsStatus
+    async getStatus() {
+      const dsStatus = await datastoreService.getStatuses(this.ds_id as string);
+      this.statusOptions = dsStatus;
     },
-    async createUploadFile(e: any, field: any){
+    async createUploadFile(e: any, field: any) {
       const file = e.target.files[0];
       const filename = file.name;
       const extension = file.type;
       const toBase64File = await toBase64(file);
-      console.log("create file tobase64", toBase64File)
+      console.log("create file tobase64", toBase64File);
       const payload = {
         filename,
         contentTypeFile: extension,
@@ -488,10 +506,13 @@ export default defineComponent({
         display_order: 0,
       } as ItemFileAttachmentPl;
       const createFileRes = await storageService.createFile(payload);
-      this.createItemParams[field.field_id] = [...(this.createItemParams[field.field_id] || []), createFileRes.file_id]
+      this.createItemParams[field.field_id] = [
+        ...(this.createItemParams[field.field_id] || []),
+        createFileRes?.file_id,
+      ];
     },
     async deleteFile(file: any) {
-      const field = this.itemFields.find(i => i.data_type === 'file')
+      const field = this.itemFields.find((i) => i.data_type === "file");
       const updateLoad = ElLoading.service({
         target: "updateModal",
       });
@@ -499,12 +520,12 @@ export default defineComponent({
       try {
         await storageService.deleteFile(fileId);
         this.successNotif("file deleted successfully");
-        this.errorMessage()
-        await this.getUpdateItemChanges(field, "", file.file_id)
+        this.errorMessage();
+        await this.getUpdateItemChanges(field, "", file.file_id);
       } catch (error) {
         console.log(error);
       } finally {
-        updateLoad.close()
+        updateLoad.close();
       }
     },
     warningCloseUpdateModal(done: () => void) {
@@ -548,8 +569,8 @@ export default defineComponent({
         console.log(error);
       } finally {
         this.visibleUpdate = false;
-        this.viewDetail = false
-        updateLoad.close()
+        this.viewDetail = false;
+        updateLoad.close();
       }
     },
     async getUpdateItemChanges(field: any, value: any, deletedFiled?: string) {
@@ -567,16 +588,19 @@ export default defineComponent({
           [];
       }
       if (deletedFiled) {
-        console.log("fileIds in delete fileeee", fileIds)
+        console.log("fileIds in delete fileeee", fileIds);
         fileIds = fileIds.filter((f: string) => f !== deletedFiled);
       }
 
       const fieldSettings = await datastoreService.getDetail(
         this.ds_id as string
       );
-      const idx = fieldSettings.fields.find(
-        (s: any) => s.id === field.field_id
-      ).field_index;
+      let idx: number | undefined = 0;
+      if (fieldSettings && fieldSettings.fields) {
+        idx = fieldSettings.fields.find(
+          (s: any) => s.id === field.field_id
+        )?.field_index;
+      }
       const fieldIdLayout = this.fieldsLayout[field.field_id];
       const fieldId = this.itemFields.find(
         (f: any) => f.field_id === field.field_id
@@ -622,7 +646,7 @@ export default defineComponent({
         }
         this.updateItemChanges.push(objectChange);
       }
-      await this.fetchItemDetail()
+      await this.fetchItemDetail();
     },
     async handleChangeFile(e: any, field: any) {
       const tableLoading = ElLoading.service({
@@ -644,22 +668,27 @@ export default defineComponent({
         display_order: 0,
       } as ItemFileAttachmentPl;
       const createFileRes = await storageService.createFile(payload);
-      const newFileId = createFileRes.file_id;
-      this.newFileId = newFileId;
+      const newFileId = createFileRes?.file_id;
+      if (newFileId) {
+        this.newFileId = newFileId;
+      }
       await this.getUpdateItemChanges(field, newFileId);
-      tableLoading.close()
+      tableLoading.close();
     },
     dateFormat(dateString: string) {
       return moment(dateString).format("YYYY-MM-DD hh:mm:ss");
     },
 
     async createItem() {
-      const dsActions: DsAction[] = await datastoreService.getActions(
-        this.ds_id as string
-      );
-      const actionIdCreate = dsActions.find(
-        (action) => action?.operation?.trim().toLowerCase() === "new"
-      )?.action_id;
+      let dsActions: [DsAction];
+      let actionIdCreate: string | undefined = "";
+      const res = await datastoreService.getActions(this.ds_id as string);
+      if (res) {
+        dsActions = res;
+        actionIdCreate = dsActions.find(
+          (action) => action?.operation?.trim().toLowerCase() === "new"
+        )?.action_id;
+      }
 
       const newItemPl = {
         action_id: actionIdCreate,
@@ -685,17 +714,19 @@ export default defineComponent({
       }
     },
 
-
     async deleteItem(row: any) {
       const tableLoading = ElLoading.service({
         target: "table",
       });
-      const dsActions: DsAction[] = await datastoreService.getActions(
-        this.ds_id as string
-      );
-      const actionIdDelete = dsActions.find(
-        (action) => action?.operation?.trim().toLowerCase() === "delete"
-      )?.action_id;
+      let dsActions: [DsAction];
+      let actionIdDelete: string | undefined = "";
+      const res = await datastoreService.getActions(this.ds_id as string);
+      if (res) {
+        dsActions = res;
+        actionIdDelete = dsActions.find(
+          (action) => action?.operation?.trim().toLowerCase() === "delete"
+        )?.action_id;
+      }
       if (actionIdDelete) {
         const deleteItemReq: DeleteItemReq = {
           a_id: actionIdDelete,
@@ -717,8 +748,8 @@ export default defineComponent({
     },
 
     handleCloseModal() {
-      this.visible = false
-      this.createItemParams = {}
+      this.visible = false;
+      this.createItemParams = {};
     },
 
     async handleOpenUpdateModal(row: any) {
@@ -730,7 +761,7 @@ export default defineComponent({
       this.updateItemDetail = this.dsItems?.items.find(
         (i: any) => i.i_id === this.curItemId
       );
-      await this.fetchItemDetail()
+      await this.fetchItemDetail();
       tableLoading.close();
     },
 
@@ -745,8 +776,8 @@ export default defineComponent({
         this.getItemDetailParams
       );
 
-      if (res){
-        this.currentItemDetail = res
+      if (res) {
+        this.currentItemDetail = res;
         tableLoading.close();
       }
     },
@@ -761,16 +792,16 @@ export default defineComponent({
       const desLoad = ElLoading.service({
         target: "description",
       });
-      await this.fetchItemDetail()
-      const result = this.currentItemDetail.field_values.user_id.value
+      await this.fetchItemDetail();
+      const result = this.currentItemDetail.field_values.user_id.value;
       this.userOptions = result.map((r: any) => {
         return {
           label: r.user_name,
-          value: r.user_id
-        }
-      })
-      console.log(result)
-      console.log(this.userOptions)
+          value: r.user_id,
+        };
+      });
+      console.log(result);
+      console.log(this.userOptions);
       desLoad.close();
     },
 
@@ -806,12 +837,13 @@ export default defineComponent({
 
     async downloadFile(file: any) {
       const res = await storageService.getFile(file.file_id);
-      this.curImg = res.data;
-      if (res.data) {
+      if (res?.data) {
         let a = document.createElement("a");
-        const realData = res.data.split('/').slice(2).join('/');
-        a.href = `data:${file.contentType};base64,/${realData}`
-        a.download = res.filename;
+        const realData = res.data.split("/").slice(2).join("/");
+        a.href = `data:${file.contentType};base64,/${realData}`;
+        if (res.filename) {
+          a.download = res.filename;
+        }
         a.click();
       }
     },
@@ -822,28 +854,30 @@ export default defineComponent({
         this.ds_id as string,
         this.id as string
       );
-      this.fieldsLayout = fieldInfo.field_layout;
-      const idArray = Object.keys(fieldInfo.fields);
-      idArray.map((item) =>
-        this.itemFields.push({
-          title: fieldInfo.fields[item].name,
-          data_type: fieldInfo.fields[item].dataType,
-          field_id: fieldInfo.fields[item].field_id,
-          display_id: fieldInfo.fields[item].display_id,
-          as_title: fieldInfo.fields[item].as_title,
-          unique: fieldInfo.fields[item].unique,
-        })
-      );
+      if (fieldInfo) {
+        this.fieldsLayout = fieldInfo.field_layout;
+        const idArray = Object.keys(fieldInfo.fields);
+        idArray.map((item) =>
+          this.itemFields.push({
+            title: fieldInfo.fields[item].name,
+            data_type: fieldInfo.fields[item].dataType,
+            field_id: fieldInfo.fields[item].field_id,
+            display_id: fieldInfo.fields[item].display_id,
+            as_title: fieldInfo.fields[item].as_title,
+            unique: fieldInfo.fields[item].unique,
+          })
+        );
 
-      this.itemFieldsExceptFile = this.itemFields.filter(
-        (i) => i.data_type !== "file"
-      );
+        this.itemFieldsExceptFile = this.itemFields.filter(
+          (i) => i.data_type !== "file"
+        );
+      }
     },
   },
   mounted() {
     this.getItems();
     this.getFields();
-    this.getStatus()
+    this.getStatus();
   },
 });
 </script>
@@ -854,7 +888,7 @@ export default defineComponent({
   font-size: 1.25rem;
   line-height: 2rem;
 }
-.custom-file-upload{
+.custom-file-upload {
   border: 1px solid #ccc;
   display: inline-block;
   padding: 6px 12px;
